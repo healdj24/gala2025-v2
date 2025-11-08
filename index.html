@@ -110,6 +110,7 @@
     .word {
       display: inline-block;
       white-space: nowrap;
+      position: relative;
       transition: all 1.2s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
@@ -125,6 +126,10 @@
     }
 
     /* Float animation when scrolled into orange section */
+    .main-title.floated {
+      display: block;
+    }
+
     .main-title.floated .word:nth-child(1) {
       position: fixed;
       top: 3rem;
