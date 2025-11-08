@@ -70,7 +70,11 @@
       letter-spacing: -0.02em;
     }
 
-    .main-title.outline {
+    .main-title span {
+      font-family: 'Nagbuloe', serif;
+    }
+
+    .main-title span.outline {
       font-family: 'Nagbuloe Outline', serif;
     }
   </style>
@@ -78,21 +82,29 @@
 <body>
   <div class="hero">
     <div class="small-text">This year's edition of</div>
-    <h1 class="main-title" id="mainTitle">the gala</h1>
+    <h1 class="main-title" id="mainTitle">
+      <span>t</span><span>h</span><span>e</span><span> </span><span>g</span><span>a</span><span>l</span><span>a</span>
+    </h1>
   </div>
 
   <script>
-    // Flip between solid and outline font every 500ms
+    // Cycle through each letter, making one outline at a time
     const title = document.getElementById('mainTitle');
-    let isOutline = false;
+    const letters = title.querySelectorAll('span');
+    let currentIndex = 0;
 
     setInterval(function() {
-      if (isOutline) {
-        title.classList.remove('outline');
-      } else {
-        title.classList.add('outline');
+      // Remove outline from all letters
+      letters.forEach(letter => letter.classList.remove('outline'));
+      
+      // Add outline to current letter (skip the space at index 3)
+      letters[currentIndex].classList.add('outline');
+      
+      // Move to next letter
+      currentIndex++;
+      if (currentIndex >= letters.length) {
+        currentIndex = 0;
       }
-      isOutline = !isOutline;
     }, 500);
   </script>
 </body>
