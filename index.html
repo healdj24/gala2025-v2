@@ -148,7 +148,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 15vh;
+      height: 10.5vh; /* 30% shorter than 15vh on mobile */
       background: #ff6b35;
       border-top: 2px solid #ffffff;
       z-index: 1000;
@@ -178,6 +178,13 @@
 
     .nav-item:active {
       opacity: 0.6;
+    }
+
+    /* Desktop dividing line between nav items */
+    @media (min-width: 768px) {
+      .nav-item:first-child {
+        border-right: 1px solid #ffffff;
+      }
     }
 
     /* Fixed hero content */
