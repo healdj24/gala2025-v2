@@ -68,10 +68,15 @@
       margin: 0;
       line-height: 0.9;
       letter-spacing: -0.02em;
+      font-variant-ligatures: none;
+      font-kerning: none;
     }
 
     .main-title span {
       font-family: 'Nagbuloe', serif;
+      display: inline-block;
+      position: relative;
+      /* Prevent layout shift when font changes */
     }
 
     .main-title span.outline {
