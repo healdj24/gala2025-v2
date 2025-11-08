@@ -142,6 +142,44 @@
       z-index: 0;
     }
 
+    /* Bottom navigation bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 15vh;
+      background: #ff6b35;
+      border-top: 2px solid #ffffff;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+
+    .nav-item {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      color: #ffffff;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      opacity: 0.8;
+    }
+
+    .nav-item:active {
+      opacity: 0.6;
+    }
+
     /* Fixed hero content */
     .hero {
       position: fixed;
@@ -630,6 +668,13 @@
       }
     });
   </script>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <div class="nav-item" id="navDetails">Details</div>
+    <div class="nav-item" id="navRSVP">RSVP</div>
+  </div>
+
 </body>
 </html>
 
