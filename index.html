@@ -73,34 +73,58 @@
       pointer-events: none;
     }
 
+    /* Text containers with dual layers */
+    .text-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
     .small-text {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
       font-size: 0.75rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: #000;
       margin-bottom: 1rem;
       font-weight: 400;
+      position: relative;
+      display: inline-block;
     }
 
-    .small-text.on-orange {
+    .small-text-black {
+      color: #000;
+    }
+
+    .small-text-white {
+      position: absolute;
+      top: 0;
+      left: 0;
       color: #ffffff;
+      clip-path: inset(0 0 100% 0);
     }
 
     .main-title {
       font-family: 'Nagbuloe', serif;
       font-size: clamp(4rem, 15vw, 12rem);
       font-weight: normal;
-      color: #000;
       margin: 0;
       line-height: 0.9;
       letter-spacing: -0.02em;
       font-variant-ligatures: none;
       font-kerning: none;
+      position: relative;
+      display: inline-block;
     }
 
-    .main-title.on-orange {
+    .main-title-black {
+      color: #000;
+    }
+
+    .main-title-white {
+      position: absolute;
+      top: 0;
+      left: 0;
       color: #ffffff;
+      clip-path: inset(0 0 100% 0);
     }
 
     .main-title span {
@@ -208,10 +232,19 @@
 
   <!-- Fixed hero text -->
   <div class="hero">
-    <div class="small-text" id="smallText">The fourth annual edition of</div>
-    <h1 class="main-title" id="mainTitle">
-      <span>t</span><span>h</span><span>e</span><span> </span><span>g</span><span>a</span><span>l</span><span>a</span>
-    </h1>
+    <div class="text-wrapper small-text">
+      <div class="small-text-black">The fourth annual edition of</div>
+      <div class="small-text-white" id="smallTextWhite">The fourth annual edition of</div>
+    </div>
+    
+    <div class="text-wrapper main-title">
+      <h1 class="main-title-black">
+        <span>t</span><span>h</span><span>e</span><span> </span><span>g</span><span>a</span><span>l</span><span>a</span>
+      </h1>
+      <h1 class="main-title-white" id="mainTitleWhite">
+        <span>t</span><span>h</span><span>e</span><span> </span><span>g</span><span>a</span><span>l</span><span>a</span>
+      </h1>
+    </div>
   </div>
 
   <!-- White section -->
@@ -422,24 +455,59 @@
       }
     }
 
-    // Scroll-based color change
+    // Scroll-based progressive wipe effect
     const playButton = document.getElementById('playButton');
-    const smallText = document.getElementById('smallText');
-    const mainTitle = document.getElementById('mainTitle');
+    const smallTextWhite = document.getElementById('smallTextWhite');
+    const mainTitleWhite = document.getElementById('mainTitleWhite');
 
     window.addEventListener('scroll', function() {
       const scrollY = window.scrollY;
       const viewportHeight = window.innerHeight;
       
-      // When scroll passes the viewport height, we're into the orange section
-      if (scrollY >= viewportHeight) {
+      // Calculate where the orange section's top edge is on screen
+      const orangeTopPosition = viewportHeight - scrollY;
+      
+      // Text is at 50vh (center of screen)
+      const textPosition = viewportHeight / 2;
+      
+      // Get the text element heights to know their bounds
+      const smallTextHeight = smallTextWhite.offsetHeight;
+      const mainTitleHeight = mainTitleWhite.offsetHeight;
+      
+      // Calculate reveal percentage for small text
+      const smallTextBottom = textPosition - (smallTextHeight / 2) + smallTextHeight;
+      const smallTextTop = textPosition - (smallTextHeight / 2);
+      
+      if (orangeTopPosition >= smallTextBottom) {
+        // Orange hasn't reached text yet
+        smallTextWhite.style.clipPath = 'inset(0 0 100% 0)';
+      } else if (orangeTopPosition <= smallTextTop) {
+        // Orange has passed completely
+        smallTextWhite.style.clipPath = 'inset(0 0 0% 0)';
+      } else {
+        // Orange is crossing through the text
+        const revealPercent = ((smallTextBottom - orangeTopPosition) / smallTextHeight) * 100;
+        smallTextWhite.style.clipPath = `inset(0 0 ${100 - revealPercent}% 0)`;
+      }
+      
+      // Calculate reveal percentage for main title (below small text)
+      const titleTop = textPosition + 20; // Approximate position below small text
+      const titleBottom = titleTop + mainTitleHeight;
+      
+      if (orangeTopPosition >= titleBottom) {
+        mainTitleWhite.style.clipPath = 'inset(0 0 100% 0)';
+      } else if (orangeTopPosition <= titleTop) {
+        mainTitleWhite.style.clipPath = 'inset(0 0 0% 0)';
+      } else {
+        const revealPercent = ((titleBottom - orangeTopPosition) / mainTitleHeight) * 100;
+        mainTitleWhite.style.clipPath = `inset(0 0 ${100 - revealPercent}% 0)`;
+      }
+      
+      // Play button color
+      if (scrollY >= viewportHeight - 100) {
         playButton.classList.add('on-orange');
-        smallText.classList.add('on-orange');
-        mainTitle.classList.add('on-orange');
       } else {
         playButton.classList.remove('on-orange');
-        smallText.classList.remove('on-orange');
-        mainTitle.classList.remove('on-orange');
       }
     });
   </script>
