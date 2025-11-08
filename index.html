@@ -149,24 +149,28 @@
       left: 0;
       right: 0;
       height: 10.5vh; /* 30% shorter than 15vh on mobile */
-      background: #ff6b35;
-      border-top: 2px solid #ffffff;
+      background: transparent; /* No background, items float */
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: space-around;
+      gap: 1rem; /* Space between the two items */
+      padding: 0 1rem;
     }
 
     .nav-item {
       flex: 1;
-      height: 100%;
+      max-width: 200px; /* Limit width so they don't stretch too much */
+      padding: 1rem 2rem; /* Comfortable padding around text */
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
-      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      font-size: clamp(1.2rem, 4vw, 2rem);
       color: #ffffff;
+      background: #ff6b35; /* Orange background for each item */
+      border-radius: 25px; /* Rounded corners */
       cursor: pointer;
       transition: opacity 0.2s ease;
       user-select: none;
@@ -178,13 +182,6 @@
 
     .nav-item:active {
       opacity: 0.6;
-    }
-
-    /* Desktop dividing line between nav items */
-    @media (min-width: 768px) {
-      .nav-item:first-child {
-        border-right: 1px solid #ffffff;
-      }
     }
 
     /* Fixed hero content */
