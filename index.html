@@ -89,6 +89,10 @@
     .main-title span.thin {
       font-family: 'Nagbuloe Thin', serif;
     }
+
+    .main-title span.outline {
+      font-family: 'Nagbuloe Outline', serif;
+    }
   </style>
 </head>
 <body>
@@ -100,20 +104,27 @@
   </div>
 
   <script>
-    // Flash all letters between Regular and Thin every 500ms
+    // Rotate through three fonts: Regular -> Thin -> Outline -> Regular
     const title = document.getElementById('mainTitle');
     const letters = title.querySelectorAll('span');
-    let isThin = false;
+    let currentState = 0; // 0 = Regular, 1 = Thin, 2 = Outline
 
     setInterval(function() {
       letters.forEach(letter => {
-        if (isThin) {
-          letter.classList.remove('thin');
-        } else {
+        // Remove all classes
+        letter.classList.remove('thin', 'outline');
+        
+        // Add appropriate class based on current state
+        if (currentState === 1) {
           letter.classList.add('thin');
+        } else if (currentState === 2) {
+          letter.classList.add('outline');
         }
+        // State 0 is regular (no class needed)
       });
-      isThin = !isThin;
+      
+      // Move to next state
+      currentState = (currentState + 1) % 3;
     }, 500);
   </script>
 </body>
