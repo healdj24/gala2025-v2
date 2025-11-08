@@ -73,34 +73,62 @@
       pointer-events: none;
     }
 
+    .text-container {
+      position: relative;
+    }
+
     .small-text {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
       font-size: 0.75rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: #000;
       margin-bottom: 1rem;
       font-weight: 400;
+      position: relative;
     }
 
-    .small-text.on-orange {
+    .small-text-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .small-text-black {
+      color: #000;
+    }
+
+    .small-text-white {
       color: #ffffff;
+      clip-path: inset(0 0 100% 0);
     }
 
     .main-title {
       font-family: 'Nagbuloe', serif;
       font-size: clamp(4rem, 15vw, 12rem);
       font-weight: normal;
-      color: #000;
       margin: 0;
       line-height: 0.9;
       letter-spacing: -0.02em;
       font-variant-ligatures: none;
       font-kerning: none;
+      position: relative;
     }
 
-    .main-title.on-orange {
+    .main-title-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .main-title-black {
+      color: #000;
+    }
+
+    .main-title-white {
       color: #ffffff;
+      clip-path: inset(0 0 100% 0);
     }
 
     .main-title span {
@@ -208,10 +236,23 @@
 
   <!-- Fixed hero text -->
   <div class="hero">
-    <div class="small-text" id="smallText">The fourth annual edition of</div>
-    <h1 class="main-title" id="mainTitle">
-      <span>t</span><span>h</span><span>e</span><span> </span><span>g</span><span>a</span><span>l</span><span>a</span>
-    </h1>
+    <div class="text-container small-text">
+      <!-- Black layer (always visible) -->
+      <div class="small-text-black">The fourth annual edition of</div>
+      <!-- White layer (clipped to reveal progressively) -->
+      <div class="small-text-layer small-text-white" id="smallTextWhite">The fourth annual edition of</div>
+    </div>
+    
+    <div class="text-container main-title">
+      <!-- Black layer (always visible) -->
+      <h1 class="main-title-black" id="mainTitle">
+        <span>t</span><span>h</span><span>e</span><span> </span><span>g</span><span>a</span><span>l</span><span>a</span>
+      </h1>
+      <!-- White layer (clipped to reveal progressively) -->
+      <h1 class="main-title-layer main-title-white" id="mainTitleWhite">
+        <span>t</span><span>h</span><span>e</span><span> </span><span>g</span><span>a</span><span>l</span><span>a</span>
+      </h1>
+    </div>
   </div>
 
   <!-- White section -->
@@ -422,24 +463,36 @@
       }
     }
 
-    // Scroll-based color change
+    // Scroll-based progressive wipe effect
     const playButton = document.getElementById('playButton');
-    const smallText = document.getElementById('smallText');
-    const mainTitle = document.getElementById('mainTitle');
+    const smallTextWhite = document.getElementById('smallTextWhite');
+    const mainTitleWhite = document.getElementById('mainTitleWhite');
 
     window.addEventListener('scroll', function() {
       const scrollY = window.scrollY;
       const viewportHeight = window.innerHeight;
       
-      // When scroll passes the viewport height, we're into the orange section
-      if (scrollY >= viewportHeight) {
+      // Calculate how much of the text should be revealed (white on orange)
+      // Text is centered at 50vh, so we need to calculate offset from center
+      const textCenterY = viewportHeight / 2;
+      
+      // How far past the first viewport have we scrolled?
+      const orangeTop = viewportHeight - scrollY;
+      
+      // Calculate percentage from bottom of text (orange coming up)
+      // If orangeTop is at textCenterY, we're just touching the text center
+      const revealPercentage = Math.max(0, Math.min(100, ((textCenterY - orangeTop) / textCenterY) * 100));
+      
+      // Update clip-path to reveal white text from bottom up
+      const clipValue = 100 - revealPercentage;
+      smallTextWhite.style.clipPath = `inset(0 0 ${clipValue}% 0)`;
+      mainTitleWhite.style.clipPath = `inset(0 0 ${clipValue}% 0)`;
+      
+      // Play button color (simple toggle when orange crosses button position)
+      if (scrollY >= viewportHeight - 100) { // Button is near top
         playButton.classList.add('on-orange');
-        smallText.classList.add('on-orange');
-        mainTitle.classList.add('on-orange');
       } else {
         playButton.classList.remove('on-orange');
-        smallText.classList.remove('on-orange');
-        mainTitle.classList.remove('on-orange');
       }
     });
   </script>
