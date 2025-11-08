@@ -88,9 +88,87 @@
       font-family: 'Nagbuloe Outline', serif;
       font-weight: normal;
     }
+
+    /* Play button styling */
+    .play-button {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #000;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, opacity 0.3s ease;
+      z-index: 1000;
+    }
+
+    .play-button:hover {
+      transform: scale(1.1);
+    }
+
+    .play-button:active {
+      transform: scale(0.95);
+    }
+
+    /* Play triangle */
+    .play-button .play-icon {
+      width: 0;
+      height: 0;
+      border-left: 18px solid #ffffff;
+      border-top: 12px solid transparent;
+      border-bottom: 12px solid transparent;
+      margin-left: 4px;
+    }
+
+    /* Pause icon */
+    .play-button .pause-icon {
+      display: none;
+      width: 20px;
+      height: 24px;
+      position: relative;
+    }
+
+    .play-button .pause-icon::before,
+    .play-button .pause-icon::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 24px;
+      background-color: #ffffff;
+    }
+
+    .play-button .pause-icon::before {
+      left: 0;
+    }
+
+    .play-button .pause-icon::after {
+      right: 0;
+    }
+
+    .play-button.playing .play-icon {
+      display: none;
+    }
+
+    .play-button.playing .pause-icon {
+      display: block;
+    }
   </style>
 </head>
 <body>
+  <!-- Play button -->
+  <button class="play-button" id="playButton">
+    <div class="play-icon"></div>
+    <div class="pause-icon"></div>
+  </button>
+
+  <!-- Hidden YouTube player -->
+  <div id="player" style="display: none;"></div>
+
   <div class="hero">
     <div class="small-text">The fourth annual edition of</div>
     <h1 class="main-title" id="mainTitle">
@@ -98,7 +176,57 @@
     </h1>
   </div>
 
+  <!-- Load YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <script>
+    // YouTube Player for "Bad Decisions" by The Strokes
+    let player;
+    let isPlaying = false;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        videoId: 'VJA5H_1N7cU', // "Bad Decisions" by The Strokes
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          modestbranding: 1,
+          playsinline: 1
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      // Player is ready
+      document.getElementById('playButton').addEventListener('click', togglePlay);
+    }
+
+    function onPlayerStateChange(event) {
+      // Update button state when video ends
+      if (event.data === YT.PlayerState.ENDED) {
+        isPlaying = false;
+        document.getElementById('playButton').classList.remove('playing');
+      }
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        player.pauseVideo();
+        isPlaying = false;
+        document.getElementById('playButton').classList.remove('playing');
+      } else {
+        player.playVideo();
+        isPlaying = true;
+        document.getElementById('playButton').classList.add('playing');
+      }
+    }
+
     // Burst flicker animation: nervous energy that settles down
     // Like a neon sign warming up
     
