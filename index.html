@@ -161,7 +161,7 @@
     .nav-item {
       flex: 1;
       max-width: 140px; /* Smaller on mobile */
-      padding: 0.6rem 1.2rem; /* Tighter padding on mobile */
+      padding: 0.4rem 0.9rem; /* Much tighter padding */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -170,11 +170,13 @@
       font-size: 0.9rem; /* Smaller font on mobile */
       color: #ffffff;
       background: #ff6b35; /* Orange background for each item */
+      border: 2px solid #000000; /* Thin black border for visibility */
       /* Organic blob shape with asymmetric border-radius */
       border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
       cursor: pointer;
       transition: opacity 0.2s ease;
       user-select: none;
+      text-transform: uppercase; /* Make text all caps */
     }
 
     /* Different blob shape for second item */
@@ -185,7 +187,7 @@
     @media (min-width: 768px) {
       .nav-item {
         max-width: 200px;
-        padding: 1rem 2rem;
+        padding: 0.7rem 1.5rem; /* Tighter on desktop too */
         font-size: 1.8rem;
       }
     }
