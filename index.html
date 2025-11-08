@@ -159,6 +159,22 @@
       opacity: 0;
     }
 
+    /* Orange section blurb */
+    .orange-blurb {
+      position: absolute;
+      top: 33.333%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: clamp(1rem, 3.75vw, 3rem);
+      color: #ffffff;
+      text-align: center;
+      max-width: 80%;
+      line-height: 1.3;
+      z-index: 5;
+    }
+
     /* Play button styling */
     .play-button {
       position: fixed;
@@ -264,7 +280,11 @@
   <div class="white-section"></div>
 
   <!-- Orange section -->
-  <div class="orange-section"></div>
+  <div class="orange-section">
+    <div class="orange-blurb">
+      A night of music, art, and community. Join us for an unforgettable evening celebrating creativity in New York City.
+    </div>
+  </div>
 
   <!-- Load YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
