@@ -99,38 +99,42 @@
   </div>
 
   <script>
-    // Settling animation: starts fast, slows down, stops at Bold
-    // Second 1: 10 flips (100ms each)
-    // Second 2: 8 flips (125ms each)
-    // Second 3: 6 flips (166ms each)
-    // Second 4: 4 flips (250ms each)
-    // Second 5: 2 flips (500ms each)
-    // Then stops at Bold
+    // Burst flicker animation: nervous energy that settles down
+    // Like a neon sign warming up
     
     const title = document.getElementById('mainTitle');
     const letters = title.querySelectorAll('span');
     let isBold = true;
     
-    const schedule = [
-      // [duration in ms, number of flips]
-      [1000, 10],  // Second 1
-      [1000, 8],   // Second 2
-      [1000, 6],   // Second 3
-      [1000, 4],   // Second 4
-      [1000, 2]    // Second 5
+    // Pattern: [flip_delay, flip_delay, ..., pause_delay]
+    const burstPattern = [
+      // Second 1: Fast bursts
+      50, 50, 50, 200,  // 3 quick + pause
+      50, 50, 50, 200,
+      50, 50, 50, 200,
+      50, 50, 50, 200,
+      
+      // Second 2: Slower bursts
+      80, 80, 80, 300,
+      80, 80, 80, 300,
+      80, 80, 300,
+      
+      // Second 3: Even slower
+      120, 120, 400,
+      120, 120, 400,
+      
+      // Second 4: Single flips with pauses
+      200, 500,
+      200, 500,
+      
+      // Second 5: Final flickers
+      300, 700,
+      400
     ];
     
-    let currentPhase = 0;
-    let flipsRemaining = 0;
-    let currentInterval = null;
+    let currentIndex = 0;
     
     function flip() {
-      if (flipsRemaining <= 0) {
-        clearInterval(currentInterval);
-        startNextPhase();
-        return;
-      }
-      
       isBold = !isBold;
       
       if (isBold) {
@@ -138,27 +142,26 @@
       } else {
         letters.forEach(letter => letter.classList.add('outline'));
       }
-      
-      flipsRemaining--;
     }
     
-    function startNextPhase() {
-      if (currentPhase >= schedule.length) {
+    function scheduleNextFlip() {
+      if (currentIndex >= burstPattern.length) {
         // Animation complete, ensure we end on Bold
         letters.forEach(letter => letter.classList.remove('outline'));
         return;
       }
       
-      const [duration, flips] = schedule[currentPhase];
-      flipsRemaining = flips;
-      const interval = duration / flips;
+      const delay = burstPattern[currentIndex];
+      currentIndex++;
       
-      currentInterval = setInterval(flip, interval);
-      currentPhase++;
+      setTimeout(function() {
+        flip();
+        scheduleNextFlip();
+      }, delay);
     }
     
     // Start the animation
-    startNextPhase();
+    scheduleNextFlip();
   </script>
 </body>
 </html>
