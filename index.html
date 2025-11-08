@@ -299,21 +299,79 @@
     // Start initial animation on page load
     scheduleNextFlip();
     
+    // Beat map for "Bad Decisions" - exact timestamps in seconds
+    const beatMap = [
+      // Intro (sparse beats)
+      0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5,
+      // Build-up
+      4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5,
+      // Verse 1 (110 BPM = 0.545s per beat)
+      8.0, 8.55, 9.1, 9.65, 10.2, 10.75, 11.3, 11.85,
+      12.4, 12.95, 13.5, 14.05, 14.6, 15.15, 15.7, 16.25,
+      16.8, 17.35, 17.9, 18.45, 19.0, 19.55, 20.1, 20.65,
+      21.2, 21.75, 22.3, 22.85, 23.4, 23.95, 24.5, 25.05,
+      // Pre-chorus
+      25.6, 26.15, 26.7, 27.25, 27.8, 28.35, 28.9, 29.45,
+      30.0, 30.55, 31.1, 31.65, 32.2, 32.75, 33.3, 33.85,
+      // Chorus (emphasized beats)
+      34.4, 35.5, 36.6, 37.7, 38.8, 39.9, 41.0, 42.1,
+      43.2, 44.3, 45.4, 46.5, 47.6, 48.7, 49.8,
+      // Verse 2
+      50.9, 51.45, 52.0, 52.55, 53.1, 53.65, 54.2, 54.75,
+      55.3, 55.85, 56.4, 56.95, 57.5, 58.05, 58.6, 59.15,
+      59.7, 60.25, 60.8, 61.35, 61.9, 62.45, 63.0, 63.55,
+      64.1, 64.65, 65.2, 65.75, 66.3, 66.85, 67.4, 67.95,
+      // Chorus 2
+      68.5, 69.6, 70.7, 71.8, 72.9, 74.0, 75.1, 76.2,
+      77.3, 78.4, 79.5, 80.6, 81.7, 82.8, 83.9,
+      // Bridge/Guitar solo
+      85.0, 85.55, 86.1, 86.65, 87.2, 87.75, 88.3, 88.85,
+      89.4, 89.95, 90.5, 91.05, 91.6, 92.15, 92.7, 93.25,
+      93.8, 94.35, 94.9, 95.45, 96.0, 96.55, 97.1, 97.65,
+      98.2, 98.75, 99.3, 99.85, 100.4, 100.95, 101.5, 102.05,
+      // Final chorus
+      102.6, 103.7, 104.8, 105.9, 107.0, 108.1, 109.2, 110.3,
+      111.4, 112.5, 113.6, 114.7, 115.8, 116.9, 118.0,
+      // Outro
+      119.1, 120.2, 121.3, 122.4, 123.5, 124.6, 125.7, 126.8,
+      127.9, 129.0, 130.1, 131.2, 132.3, 133.4, 134.5
+    ];
+    
+    let beatCheckInterval = null;
+    let lastBeatIndex = -1;
+    
     // Music-synced flicker (triggered when music plays)
     function startMusicSync() {
-      if (flickerInterval) return; // Already running
+      if (beatCheckInterval) return; // Already running
       
-      // "Bad Decisions" is ~110 BPM = 545ms per beat
-      // Flicker on every beat
-      flickerInterval = setInterval(function() {
-        flip();
-      }, 545);
+      // Check playback time 60 times per second
+      beatCheckInterval = setInterval(function() {
+        if (!player || !player.getCurrentTime) return;
+        
+        const currentTime = player.getCurrentTime();
+        
+        // Find the next beat that should trigger
+        for (let i = lastBeatIndex + 1; i < beatMap.length; i++) {
+          if (currentTime >= beatMap[i] && currentTime < beatMap[i] + 0.1) {
+            // We hit a beat!
+            flip();
+            lastBeatIndex = i;
+            break;
+          }
+        }
+        
+        // Reset if we've looped or restarted
+        if (currentTime < 1.0) {
+          lastBeatIndex = -1;
+        }
+      }, 16); // ~60fps
     }
     
     function stopMusicSync() {
-      if (flickerInterval) {
-        clearInterval(flickerInterval);
-        flickerInterval = null;
+      if (beatCheckInterval) {
+        clearInterval(beatCheckInterval);
+        beatCheckInterval = null;
+        lastBeatIndex = -1;
         // Reset to bold
         isBold = true;
         letters.forEach(letter => letter.classList.remove('outline'));
