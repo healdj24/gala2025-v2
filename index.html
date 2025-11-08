@@ -95,7 +95,7 @@
       flex: 1;
       color: #ffffff;
       font-family: 'Nagbuloe', serif;
-      font-size: clamp(0.32rem, 0.6vw, 0.48rem);
+      font-size: 0.61rem; /* Mobile: 30% bigger than orange blurb (0.47 * 1.3) */
       line-height: 1.6;
     }
 
@@ -104,8 +104,19 @@
       color: #ffffff;
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
-      font-size: clamp(0.38rem, 1.41vw, 1.12rem);
+      font-size: 0.79rem; /* Mobile: 30% bigger than third-left (0.61 * 1.3) */
       text-align: center;
+    }
+
+    /* Desktop adjustments */
+    @media (min-width: 768px) {
+      .third-left {
+        font-size: 0.72rem; /* Desktop: 50% bigger than current (0.48 * 1.5) */
+      }
+
+      .third-right {
+        font-size: 1.46rem; /* Desktop: 30% bigger than current (1.12 * 1.3) */
+      }
     }
 
     /* Spacer to allow scrolling - extended for smooth third section reveal */
