@@ -101,21 +101,21 @@
   </div>
 
   <script>
-    // Flash between Regular and Thin every 500ms
+    // Flash between Regular and Outline every 300ms
     const title = document.getElementById('mainTitle');
     const letters = title.querySelectorAll('span');
-    let isThin = false;
+    let isOutline = false;
 
     setInterval(function() {
       letters.forEach(letter => {
-        if (isThin) {
-          letter.classList.remove('thin');
+        if (isOutline) {
+          letter.classList.remove('outline');
         } else {
-          letter.classList.add('thin');
+          letter.classList.add('outline');
         }
       });
-      isThin = !isThin;
-    }, 500);
+      isOutline = !isOutline;
+    }, 300);
   </script>
 </body>
 </html>
