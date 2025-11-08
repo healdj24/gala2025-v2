@@ -68,10 +68,9 @@
       margin: 0;
       line-height: 0.9;
       letter-spacing: -0.02em;
-      transition: font-family 0.3s ease;
     }
 
-    .main-title.scrolled {
+    .main-title.outline {
       font-family: 'Nagbuloe Outline', serif;
     }
   </style>
@@ -83,18 +82,18 @@
   </div>
 
   <script>
-    // Add scroll effect to change font to outline
-    window.addEventListener('scroll', function() {
-      const title = document.getElementById('mainTitle');
-      const scrollPosition = window.scrollY;
-      
-      // Change to outline font after scrolling 50px
-      if (scrollPosition > 50) {
-        title.classList.add('scrolled');
+    // Flip between solid and outline font every 500ms
+    const title = document.getElementById('mainTitle');
+    let isOutline = false;
+
+    setInterval(function() {
+      if (isOutline) {
+        title.classList.remove('outline');
       } else {
-        title.classList.remove('scrolled');
+        title.classList.add('outline');
       }
-    });
+      isOutline = !isOutline;
+    }, 500);
   </script>
 </body>
 </html>
