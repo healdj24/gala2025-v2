@@ -19,6 +19,13 @@
       font-style: normal;
     }
 
+    @font-face {
+      font-family: 'Nagbuloe Outline';
+      src: url('./fonts/Nagbuloe-Outline.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -28,10 +35,7 @@
     body {
       margin: 0;
       padding: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      min-height: 200vh;
       background: #ffffff;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
@@ -39,6 +43,11 @@
     .hero {
       text-align: center;
       padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .small-text {
@@ -59,14 +68,34 @@
       margin: 0;
       line-height: 0.9;
       letter-spacing: -0.02em;
+      transition: font-family 0.3s ease;
+    }
+
+    .main-title.scrolled {
+      font-family: 'Nagbuloe Outline', serif;
     }
   </style>
 </head>
 <body>
   <div class="hero">
     <div class="small-text">This year's edition of</div>
-    <h1 class="main-title">the gala</h1>
+    <h1 class="main-title" id="mainTitle">the gala</h1>
   </div>
+
+  <script>
+    // Add scroll effect to change font to outline
+    window.addEventListener('scroll', function() {
+      const title = document.getElementById('mainTitle');
+      const scrollPosition = window.scrollY;
+      
+      // Change to outline font after scrolling 50px
+      if (scrollPosition > 50) {
+        title.classList.add('scrolled');
+      } else {
+        title.classList.remove('scrolled');
+      }
+    });
+  </script>
 </body>
 </html>
 
