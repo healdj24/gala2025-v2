@@ -46,20 +46,30 @@
       overflow-x: hidden;
     }
 
-    /* White section at top */
+    /* White section at top - scrolls up like peeling layer */
     .white-section {
       position: relative;
       height: 100vh;
       background: #ffffff;
+      z-index: 20;
+    }
+
+    /* Orange section below - fixed underneath */
+    .orange-section {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      min-height: 100vh;
+      background: #ff6b35;
       z-index: 1;
     }
 
-    /* Orange section below */
-    .orange-section {
+    /* Spacer to allow scrolling */
+    .scroll-spacer {
       position: relative;
-      min-height: 200vh;
-      background: #ff6b35;
-      z-index: 1;
+      height: 200vh;
+      z-index: 0;
     }
 
     /* Fixed hero content */
@@ -69,7 +79,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      z-index: 10;
+      z-index: 100;
       pointer-events: none;
     }
 
@@ -240,15 +250,18 @@
     </h1>
   </div>
 
-  <!-- White section -->
+  <!-- White section - scrolls up to reveal orange -->
   <div class="white-section"></div>
 
-  <!-- Orange section -->
+  <!-- Orange section - fixed underneath -->
   <div class="orange-section">
     <div class="orange-blurb">
       A night of music, art, and community. Join us for an unforgettable evening celebrating creativity in New York City.
     </div>
   </div>
+
+  <!-- Scroll spacer to allow continued scrolling -->
+  <div class="scroll-spacer"></div>
 
   <!-- Load YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
