@@ -65,6 +65,23 @@
       z-index: 1;
     }
 
+    /* Third orange screen - slides up to cover text */
+    .third-section {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100vh;
+      background: #ff6b35;
+      z-index: 50;
+      transform: translateY(100%);
+      transition: transform 0.6s ease-out;
+    }
+
+    .third-section.visible {
+      transform: translateY(0);
+    }
+
     /* Spacer to allow scrolling */
     .scroll-spacer {
       position: relative;
@@ -260,6 +277,9 @@
       A night of music, art, and community. Join us for an unforgettable evening celebrating creativity in New York City. Experience live performances from incredible artists. Connect with fellow creatives and be inspired by the energy of the night.
     </div>
   </div>
+
+  <!-- Third orange screen - slides up to cover text -->
+  <div class="third-section"></div>
 
   <!-- Scroll spacer to allow continued scrolling -->
   <div class="scroll-spacer"></div>
@@ -466,10 +486,11 @@
       }
     }
 
-    // Scroll-based color change
+    // Scroll-based color change and third section slide-up
     const playButton = document.getElementById('playButton');
     const smallText = document.getElementById('smallText');
     const mainTitle = document.getElementById('mainTitle');
+    const thirdSection = document.querySelector('.third-section');
 
     window.addEventListener('scroll', function() {
       const scrollY = window.scrollY;
@@ -484,6 +505,13 @@
         playButton.classList.remove('on-orange');
         smallText.classList.remove('on-orange');
         mainTitle.classList.remove('on-orange');
+      }
+
+      // When scroll passes 2x viewport height, slide up third section to cover text
+      if (scrollY >= viewportHeight * 2) {
+        thirdSection.classList.add('visible');
+      } else {
+        thirdSection.classList.remove('visible');
       }
     });
   </script>
