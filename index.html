@@ -99,47 +99,66 @@
   </div>
 
   <script>
-    // 6-step cycle: Both Bold -> Both Outline -> "the" Bold/"gala" Outline -> 
-    // Both Outline -> "the" Outline/"gala" Bold -> Both Outline
+    // Settling animation: starts fast, slows down, stops at Bold
+    // Second 1: 10 flips (100ms each)
+    // Second 2: 8 flips (125ms each)
+    // Second 3: 6 flips (166ms each)
+    // Second 4: 4 flips (250ms each)
+    // Second 5: 2 flips (500ms each)
+    // Then stops at Bold
+    
     const title = document.getElementById('mainTitle');
     const letters = title.querySelectorAll('span');
+    let isBold = true;
     
-    // Indices: t(0) h(1) e(2) space(3) g(4) a(5) l(6) a(7)
-    const theIndices = [0, 1, 2];
-    const galaIndices = [4, 5, 6, 7];
+    const schedule = [
+      // [duration in ms, number of flips]
+      [1000, 10],  // Second 1
+      [1000, 8],   // Second 2
+      [1000, 6],   // Second 3
+      [1000, 4],   // Second 4
+      [1000, 2]    // Second 5
+    ];
     
-    let step = 0;
-
-    function updateFonts() {
-      // Remove outline from all letters (default is Bold)
-      letters.forEach(letter => letter.classList.remove('outline'));
-      
-      switch(step) {
-        case 0: // Both Bold
-          // No outline needed, default is bold
-          break;
-        case 1: // Both Outline
-          letters.forEach(letter => letter.classList.add('outline'));
-          break;
-        case 2: // "the" Bold, "gala" Outline
-          galaIndices.forEach(i => letters[i].classList.add('outline'));
-          break;
-        case 3: // Both Outline
-          letters.forEach(letter => letter.classList.add('outline'));
-          break;
-        case 4: // "the" Outline, "gala" Bold
-          theIndices.forEach(i => letters[i].classList.add('outline'));
-          break;
-        case 5: // Both Outline
-          letters.forEach(letter => letter.classList.add('outline'));
-          break;
+    let currentPhase = 0;
+    let flipsRemaining = 0;
+    let currentInterval = null;
+    
+    function flip() {
+      if (flipsRemaining <= 0) {
+        clearInterval(currentInterval);
+        startNextPhase();
+        return;
       }
       
-      step = (step + 1) % 6;
+      isBold = !isBold;
+      
+      if (isBold) {
+        letters.forEach(letter => letter.classList.remove('outline'));
+      } else {
+        letters.forEach(letter => letter.classList.add('outline'));
+      }
+      
+      flipsRemaining--;
     }
-
-    // Run every 500ms
-    setInterval(updateFonts, 500);
+    
+    function startNextPhase() {
+      if (currentPhase >= schedule.length) {
+        // Animation complete, ensure we end on Bold
+        letters.forEach(letter => letter.classList.remove('outline'));
+        return;
+      }
+      
+      const [duration, flips] = schedule[currentPhase];
+      flipsRemaining = flips;
+      const interval = duration / flips;
+      
+      currentInterval = setInterval(flip, interval);
+      currentPhase++;
+    }
+    
+    // Start the animation
+    startNextPhase();
   </script>
 </body>
 </html>
