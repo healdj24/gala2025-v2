@@ -110,7 +110,6 @@
     .word {
       display: inline-block;
       white-space: nowrap;
-      transition: all 1.2s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
     .word span {
@@ -122,41 +121,6 @@
     .word span.outline {
       font-family: 'Nagbuloe Outline', serif;
       font-weight: normal;
-    }
-
-    .space {
-      transition: opacity 0.3s ease;
-    }
-
-    /* Float animation when scrolled into orange section */
-    .hero.floated .small-text {
-      opacity: 0;
-      transition: opacity 0.6s ease;
-    }
-
-    .hero.floated .word {
-      position: fixed;
-    }
-
-    .hero.floated .word:nth-child(1) {
-      /* "the" floats to top left */
-      top: 3rem;
-      left: 3rem;
-      transform: scale(0.333);
-      transform-origin: top left;
-    }
-
-    .hero.floated .word:nth-child(3) {
-      /* "gala" floats to top right */
-      top: 3rem;
-      right: 3rem;
-      transform: scale(0.333);
-      transform-origin: top right;
-    }
-
-    /* Hide the space when floated */
-    .hero.floated .space {
-      opacity: 0;
     }
 
     /* Orange section blurb */
@@ -488,11 +452,10 @@
       }
     }
 
-    // Scroll-based color change and float animation
+    // Scroll-based color change
     const playButton = document.getElementById('playButton');
     const smallText = document.getElementById('smallText');
     const mainTitle = document.getElementById('mainTitle');
-    const hero = document.querySelector('.hero');
 
     window.addEventListener('scroll', function() {
       const scrollY = window.scrollY;
@@ -503,18 +466,10 @@
         playButton.classList.add('on-orange');
         smallText.classList.add('on-orange');
         mainTitle.classList.add('on-orange');
-        
-        // Trigger float animation when deeper into orange section
-        if (scrollY >= viewportHeight * 1.5) {
-          hero.classList.add('floated');
-        } else {
-          hero.classList.remove('floated');
-        }
       } else {
         playButton.classList.remove('on-orange');
         smallText.classList.remove('on-orange');
         mainTitle.classList.remove('on-orange');
-        hero.classList.remove('floated');
       }
     });
   </script>
