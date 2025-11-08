@@ -191,7 +191,7 @@
     /* Orange section blurb */
     .orange-blurb {
       position: absolute;
-      top: 73%;
+      top: 61%; /* Mobile: 12% higher (73% - 12%) */
       left: 50%;
       transform: translateX(-50%);
       font-family: 'Nagbuloe', serif;
@@ -213,6 +213,7 @@
     /* Desktop size for orange blurb */
     @media (min-width: 768px) {
       .orange-blurb {
+        top: 73%; /* Desktop: stays at original position */
         font-size: 1.4rem; /* Keep desktop size */
         width: auto; /* Desktop: let it size naturally */
         max-width: 80%; /* Desktop: cap at 80% */
