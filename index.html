@@ -395,17 +395,36 @@
         document.getElementById('playButton').classList.remove('playing');
         stopMusicSync(); // Stop text flicker when music pauses
       } else {
-        // Optimistic UI update - assume play will work
+        // Optimistic UI update
         isPlaying = true;
         document.getElementById('playButton').classList.add('playing');
         startMusicSync(); // Start text flicker synced to beat
         
-        // Unmute and play
-        player.unMute();
-        player.setVolume(100);
-        player.playVideo();
+        // Mobile-optimized playback: Start muted, then unmute after play succeeds
+        player.mute(); // Mute first to satisfy mobile autoplay policies
         
-        console.log('Playing video...');
+        const playPromise = player.playVideo();
+        
+        // Handle promise-based playback (modern browsers)
+        if (playPromise !== undefined && playPromise.then) {
+          playPromise.then(() => {
+            // Play started successfully, now unmute
+            player.unMute();
+            player.setVolume(100);
+            console.log('Playing video with audio...');
+          }).catch((error) => {
+            console.error('Play failed:', error);
+            // Even if promise fails, try to unmute anyway
+            player.unMute();
+            player.setVolume(100);
+          });
+        } else {
+          // Fallback for older browsers - unmute immediately
+          player.unMute();
+          player.setVolume(100);
+        }
+        
+        console.log('Play initiated...');
       }
     }
 
