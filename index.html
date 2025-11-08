@@ -65,80 +65,10 @@
       z-index: 1;
     }
 
-    /* Third orange screen - slides up to cover text */
-    .third-section {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 100vh;
-      background: #ff6b35;
-      z-index: 500;
-      transform: translateY(100%);
-      will-change: transform;
-      display: flex;
-      align-items: flex-start; /* Align to top instead of center */
-      justify-content: center;
-      padding-top: 8rem; /* Add top padding to push content down */
-      padding-left: 1rem;
-      padding-right: 1rem;
-      padding-bottom: 2rem;
-      overflow-y: auto; /* Allow scrolling if content is too tall */
-    }
-
-    /* Third section content layout */
-    .third-content {
-      display: flex;
-      width: 100%;
-      gap: 0.5rem; /* Small gap between left and right */
-      align-items: flex-start;
-      justify-content: space-between;
-      padding: 0 0.5rem; /* Small padding on outer edges */
-    }
-
-    .third-left {
-      width: 48%; /* Take up almost half the screen */
-      color: #ffffff;
-      font-family: 'Nagbuloe', serif;
-      font-size: 0.75rem; /* Mobile: bigger, fills the space */
-      line-height: 1.4;
-      text-align: left;
-    }
-
-    .third-right {
-      width: 48%; /* Take up almost half the screen */
-      color: #ffffff;
-      font-family: 'Nagbuloe', serif;
-      font-weight: bold;
-      font-size: 1rem; /* Mobile: prominent for Guest List */
-      text-align: center;
-    }
-
-    /* Desktop adjustments */
-    @media (min-width: 768px) {
-      .third-content {
-        max-width: 1400px;
-        gap: 4rem;
-        padding: 0 2rem;
-      }
-
-      .third-left {
-        width: auto;
-        flex: 1;
-        font-size: 0.72rem; /* Desktop: 50% bigger than current */
-      }
-
-      .third-right {
-        width: auto;
-        flex: 1;
-        font-size: 1.46rem; /* Desktop: 30% bigger than current */
-      }
-    }
-
-    /* Spacer to allow scrolling - extended for smooth third section reveal */
+    /* Spacer to allow scrolling */
     .scroll-spacer {
       position: relative;
-      height: 300vh;
+      height: 100vh; /* Reduced to just 2 pages */
       z-index: 0;
     }
 
@@ -405,18 +335,6 @@
     </div>
   </div>
 
-  <!-- Third orange screen - slides up to cover text -->
-  <div class="third-section">
-    <div class="third-content">
-      <div class="third-left">
-        <p>Join us for an evening of extraordinary performances and artistic expression. This year's gala brings together the most talented musicians, dancers, and visual artists from across the city. Experience the magic of live entertainment in an intimate setting designed to inspire and captivate. Our carefully curated program features both emerging talents and established performers. Each moment has been crafted to create an unforgettable experience. The venue transforms into a vibrant celebration of creativity and community. Discover new perspectives and connect with fellow art enthusiasts. This is more than an event—it's a journey into the heart of New York's creative spirit. Together we celebrate the power of the arts to unite and inspire. Be part of something truly special.</p>
-      </div>
-      <div class="third-right">
-        <h2>Guest List</h2>
-      </div>
-    </div>
-  </div>
-
   <!-- Scroll spacer to allow continued scrolling -->
   <div class="scroll-spacer"></div>
 
@@ -645,12 +563,11 @@
       }
     }
 
-    // Scroll-based color change and third section slide-up
+    // Scroll-based color change
     const playButton = document.getElementById('playButton');
     const smallText = document.getElementById('smallText');
     const mainTitle = document.getElementById('mainTitle');
     const orangeBlurb = document.querySelector('.orange-blurb');
-    const thirdSection = document.querySelector('.third-section');
 
     window.addEventListener('scroll', function() {
       const scrollY = window.scrollY;
@@ -667,24 +584,6 @@
         smallText.classList.remove('on-orange');
         mainTitle.classList.remove('on-orange');
         orangeBlurb.classList.remove('on-orange');
-      }
-
-      // Smoothly slide up third section based on scroll progress
-      // Start sliding when scroll reaches 2x viewport, complete by 3x viewport
-      const slideStart = viewportHeight * 2;
-      const slideEnd = viewportHeight * 3;
-      
-      if (scrollY >= slideEnd) {
-        // Fully visible
-        thirdSection.style.transform = 'translateY(0)';
-      } else if (scrollY >= slideStart) {
-        // Gradually slide up based on scroll progress
-        const progress = (scrollY - slideStart) / (slideEnd - slideStart);
-        const translateY = 100 - (progress * 100);
-        thirdSection.style.transform = `translateY(${translateY}%)`;
-      } else {
-        // Hidden below viewport
-        thirdSection.style.transform = 'translateY(100%)';
       }
     });
   </script>
