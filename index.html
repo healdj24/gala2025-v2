@@ -110,7 +110,6 @@
     .word {
       display: inline-block;
       white-space: nowrap;
-      position: fixed;
       transition: all 1.2s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
@@ -125,26 +124,7 @@
       font-weight: normal;
     }
 
-    /* Default centered positions for words */
-    .word:nth-child(1) {
-      /* "the" starts centered */
-      left: 50%;
-      top: 50%;
-      transform: translate(-100%, -50%);
-    }
-
-    .word:nth-child(3) {
-      /* "gala" starts centered */
-      left: 50%;
-      top: 50%;
-      transform: translate(0%, -50%);
-    }
-
     .space {
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
       transition: opacity 0.3s ease;
     }
 
@@ -154,11 +134,15 @@
       transition: opacity 0.6s ease;
     }
 
+    .hero.floated .word {
+      position: fixed;
+    }
+
     .hero.floated .word:nth-child(1) {
       /* "the" floats to top left */
       top: 3rem;
       left: 3rem;
-      transform: translate(0%, 0%) scale(0.333);
+      transform: scale(0.333);
       transform-origin: top left;
     }
 
@@ -166,8 +150,7 @@
       /* "gala" floats to top right */
       top: 3rem;
       right: 3rem;
-      left: auto;
-      transform: translate(0%, 0%) scale(0.333);
+      transform: scale(0.333);
       transform-origin: top right;
     }
 
