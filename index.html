@@ -395,35 +395,17 @@
         document.getElementById('playButton').classList.remove('playing');
         stopMusicSync(); // Stop text flicker when music pauses
       } else {
-        // Mobile fix: Ensure player is unmuted BEFORE calling playVideo
-        try {
-          player.unMute();
-          player.setVolume(100);
-          
-          // Add a small delay for mobile browsers
-          setTimeout(() => {
-            player.playVideo().then(() => {
-              isPlaying = true;
-              document.getElementById('playButton').classList.add('playing');
-              startMusicSync();
-              console.log('Playing video...');
-            }).catch((error) => {
-              console.error('Play failed:', error);
-              // Retry once if it fails
-              player.playVideo();
-              isPlaying = true;
-              document.getElementById('playButton').classList.add('playing');
-              startMusicSync();
-            });
-          }, 100);
-        } catch (error) {
-          console.error('Error playing:', error);
-          // Fallback for older browsers
-          player.playVideo();
-          isPlaying = true;
-          document.getElementById('playButton').classList.add('playing');
-          startMusicSync();
-        }
+        // Optimistic UI update - assume play will work
+        isPlaying = true;
+        document.getElementById('playButton').classList.add('playing');
+        startMusicSync(); // Start text flicker synced to beat
+        
+        // Unmute and play
+        player.unMute();
+        player.setVolume(100);
+        player.playVideo();
+        
+        console.log('Playing video...');
       }
     }
 
