@@ -99,6 +99,7 @@
       font-variant-ligatures: none;
       font-kerning: none;
       transition: color 0.3s ease;
+      display: inline-block;
     }
 
     .main-title.on-orange {
@@ -108,11 +109,40 @@
     .main-title span {
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
+      display: inline-block;
     }
 
     .main-title span.outline {
       font-family: 'Nagbuloe Outline', serif;
       font-weight: normal;
+    }
+
+    /* Word grouping for "the" and "gala" */
+    .word {
+      display: inline-block;
+      transition: all 1.2s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    /* Float animation when scrolled into orange section */
+    .main-title.floated .word:nth-child(1) {
+      position: fixed;
+      top: 3rem;
+      left: 3rem;
+      transform: scale(0.333);
+      transform-origin: top left;
+    }
+
+    .main-title.floated .word:nth-child(3) {
+      position: fixed;
+      top: 3rem;
+      right: 3rem;
+      transform: scale(0.333);
+      transform-origin: top right;
+    }
+
+    /* Hide the space when floated */
+    .main-title.floated .space {
+      display: none;
     }
 
     /* Play button styling */
@@ -212,7 +242,7 @@
   <div class="hero">
     <div class="small-text" id="smallText">The fourth annual edition of</div>
     <h1 class="main-title" id="mainTitle">
-      <span>t</span><span>h</span><span>e</span><span> </span><span>g</span><span>a</span><span>l</span><span>a</span>
+      <span class="word"><span>t</span><span>h</span><span>e</span></span><span class="space"> </span><span class="word"><span>g</span><span>a</span><span>l</span><span>a</span></span>
     </h1>
   </div>
 
@@ -294,7 +324,7 @@
 
     // Text flicker animation
     const title = document.getElementById('mainTitle');
-    const letters = title.querySelectorAll('span');
+    const letters = title.querySelectorAll('.word span');
     let isBold = true;
     let flickerInterval = null;
     let initialAnimationDone = false;
@@ -424,7 +454,7 @@
       }
     }
 
-    // Scroll-based color change
+    // Scroll-based color change and float animation
     const playButton = document.getElementById('playButton');
     const smallText = document.getElementById('smallText');
     const mainTitle = document.getElementById('mainTitle');
@@ -438,10 +468,18 @@
         playButton.classList.add('on-orange');
         smallText.classList.add('on-orange');
         mainTitle.classList.add('on-orange');
+        
+        // Trigger float animation when deeper into orange section
+        if (scrollY >= viewportHeight * 1.5) {
+          mainTitle.classList.add('floated');
+        } else {
+          mainTitle.classList.remove('floated');
+        }
       } else {
         playButton.classList.remove('on-orange');
         smallText.classList.remove('on-orange');
         mainTitle.classList.remove('on-orange');
+        mainTitle.classList.remove('floated');
       }
     });
   </script>
