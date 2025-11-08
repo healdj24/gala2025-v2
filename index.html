@@ -160,20 +160,27 @@
 
     .nav-item {
       flex: 1;
-      max-width: 200px; /* Limit width so they don't stretch too much */
-      padding: 1rem 2rem; /* Comfortable padding around text */
+      max-width: 180px; /* Slightly smaller max width */
+      padding: 0.7rem 1.5rem; /* Smaller padding on mobile */
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
-      font-size: clamp(1.2rem, 4vw, 2rem);
+      font-size: clamp(1rem, 3.5vw, 1.8rem); /* Smaller font on mobile */
       color: #ffffff;
       background: #ff6b35; /* Orange background for each item */
-      border-radius: 25px; /* Rounded corners */
+      border-radius: 50px; /* More blobby/pill-like shape */
       cursor: pointer;
       transition: opacity 0.2s ease;
       user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .nav-item {
+        max-width: 200px;
+        padding: 1rem 2rem;
+      }
     }
 
     .nav-item:hover {
