@@ -186,6 +186,8 @@
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('player', {
+        height: '0',
+        width: '0',
         videoId: 'VJA5H_1N7cU', // "Bad Decisions" by The Strokes
         playerVars: {
           autoplay: 0,
@@ -193,13 +195,20 @@
           disablekb: 1,
           fs: 0,
           modestbranding: 1,
-          playsinline: 1
+          playsinline: 1,
+          enablejsapi: 1
         },
         events: {
           'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange
+          'onStateChange': onPlayerStateChange,
+          'onError': onPlayerError
         }
       });
+    }
+
+    function onPlayerError(event) {
+      console.error('YouTube Player Error:', event.data);
+      alert('Unable to play this song. Error code: ' + event.data);
     }
 
     function onPlayerReady(event) {
@@ -216,14 +225,22 @@
     }
 
     function togglePlay() {
+      if (!player || !player.playVideo) {
+        console.error('Player not ready yet');
+        return;
+      }
+
       if (isPlaying) {
         player.pauseVideo();
         isPlaying = false;
         document.getElementById('playButton').classList.remove('playing');
       } else {
         player.playVideo();
+        player.unMute(); // Ensure it's not muted
+        player.setVolume(100); // Set volume to 100%
         isPlaying = true;
         document.getElementById('playButton').classList.add('playing');
+        console.log('Playing video...');
       }
     }
 
