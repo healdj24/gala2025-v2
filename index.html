@@ -86,36 +86,48 @@
     .third-content {
       display: flex;
       width: 100%;
-      max-width: 1400px;
-      gap: 4rem;
-      align-items: center;
+      gap: 0.5rem; /* Small gap between left and right */
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 0 0.5rem; /* Small padding on outer edges */
     }
 
     .third-left {
-      flex: 1;
+      width: 48%; /* Take up almost half the screen */
       color: #ffffff;
       font-family: 'Nagbuloe', serif;
-      font-size: 0.61rem; /* Mobile: 30% bigger than orange blurb (0.47 * 1.3) */
-      line-height: 1.6;
+      font-size: 0.75rem; /* Mobile: bigger, fills the space */
+      line-height: 1.4;
+      text-align: left;
     }
 
     .third-right {
-      flex: 1;
+      width: 48%; /* Take up almost half the screen */
       color: #ffffff;
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
-      font-size: 0.79rem; /* Mobile: 30% bigger than third-left (0.61 * 1.3) */
+      font-size: 1rem; /* Mobile: prominent for Guest List */
       text-align: center;
     }
 
     /* Desktop adjustments */
     @media (min-width: 768px) {
+      .third-content {
+        max-width: 1400px;
+        gap: 4rem;
+        padding: 0 2rem;
+      }
+
       .third-left {
-        font-size: 0.72rem; /* Desktop: 50% bigger than current (0.48 * 1.5) */
+        width: auto;
+        flex: 1;
+        font-size: 0.72rem; /* Desktop: 50% bigger than current */
       }
 
       .third-right {
-        font-size: 1.46rem; /* Desktop: 30% bigger than current (1.12 * 1.3) */
+        width: auto;
+        flex: 1;
+        font-size: 1.46rem; /* Desktop: 30% bigger than current */
       }
     }
 
