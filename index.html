@@ -81,14 +81,12 @@
 
     .main-title span {
       font-family: 'Nagbuloe', serif;
-    }
-
-    .main-title span.thin {
-      font-family: 'Nagbuloe Thin', serif;
+      font-weight: bold;
     }
 
     .main-title span.outline {
       font-family: 'Nagbuloe Outline', serif;
+      font-weight: normal;
     }
   </style>
 </head>
@@ -101,8 +99,8 @@
   </div>
 
   <script>
-    // Alternate "the" and "gala" between Regular and Outline every 3 seconds
-    // Within each word, flash every 500ms
+    // 6-step cycle: Both Bold -> Both Outline -> "the" Bold/"gala" Outline -> 
+    // Both Outline -> "the" Outline/"gala" Bold -> Both Outline
     const title = document.getElementById('mainTitle');
     const letters = title.querySelectorAll('span');
     
@@ -110,28 +108,38 @@
     const theIndices = [0, 1, 2];
     const galaIndices = [4, 5, 6, 7];
     
-    let theIsOutline = false;
-    let flashState = false;
+    let step = 0;
 
-    // Flash effect every 500ms
-    setInterval(function() {
+    function updateFonts() {
+      // Remove outline from all letters (default is Bold)
       letters.forEach(letter => letter.classList.remove('outline'));
       
-      if (flashState) {
-        // Apply outline based on current word state
-        if (theIsOutline) {
-          theIndices.forEach(i => letters[i].classList.add('outline'));
-        } else {
+      switch(step) {
+        case 0: // Both Bold
+          // No outline needed, default is bold
+          break;
+        case 1: // Both Outline
+          letters.forEach(letter => letter.classList.add('outline'));
+          break;
+        case 2: // "the" Bold, "gala" Outline
           galaIndices.forEach(i => letters[i].classList.add('outline'));
-        }
+          break;
+        case 3: // Both Outline
+          letters.forEach(letter => letter.classList.add('outline'));
+          break;
+        case 4: // "the" Outline, "gala" Bold
+          theIndices.forEach(i => letters[i].classList.add('outline'));
+          break;
+        case 5: // Both Outline
+          letters.forEach(letter => letter.classList.add('outline'));
+          break;
       }
-      flashState = !flashState;
-    }, 500);
+      
+      step = (step + 1) % 6;
+    }
 
-    // Swap which word is outline every 3 seconds
-    setInterval(function() {
-      theIsOutline = !theIsOutline;
-    }, 3000);
+    // Run every 500ms
+    setInterval(updateFonts, 500);
   </script>
 </body>
 </html>
