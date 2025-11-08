@@ -76,10 +76,40 @@
       z-index: 500;
       transform: translateY(100%);
       transition: transform 0.6s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem;
     }
 
     .third-section.visible {
       transform: translateY(0);
+    }
+
+    /* Third section content layout */
+    .third-content {
+      display: flex;
+      width: 100%;
+      max-width: 1400px;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .third-left {
+      flex: 1;
+      color: #ffffff;
+      font-family: 'Nagbuloe', serif;
+      font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+      line-height: 1.6;
+    }
+
+    .third-right {
+      flex: 1;
+      color: #ffffff;
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: clamp(1.04rem, 1.95vw, 1.56rem);
+      text-align: center;
     }
 
     /* Spacer to allow scrolling */
@@ -279,7 +309,16 @@
   </div>
 
   <!-- Third orange screen - slides up to cover text -->
-  <div class="third-section"></div>
+  <div class="third-section">
+    <div class="third-content">
+      <div class="third-left">
+        <p>Join us for an evening of extraordinary performances and artistic expression. This year's gala brings together the most talented musicians, dancers, and visual artists from across the city. Experience the magic of live entertainment in an intimate setting designed to inspire and captivate. Our carefully curated program features both emerging talents and established performers. Each moment has been crafted to create an unforgettable experience. The venue transforms into a vibrant celebration of creativity and community. Discover new perspectives and connect with fellow art enthusiasts. This is more than an event—it's a journey into the heart of New York's creative spirit. Together we celebrate the power of the arts to unite and inspire. Be part of something truly special.</p>
+      </div>
+      <div class="third-right">
+        <h2>Guest List</h2>
+      </div>
+    </div>
+  </div>
 
   <!-- Scroll spacer to allow continued scrolling -->
   <div class="scroll-spacer"></div>
