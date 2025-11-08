@@ -106,21 +106,22 @@
       color: #ffffff;
     }
 
-    .main-title span {
+    /* Word grouping for "the" and "gala" */
+    .word {
+      display: inline-block;
+      white-space: nowrap;
+      transition: all 1.2s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    .word span {
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
       display: inline-block;
     }
 
-    .main-title span.outline {
+    .word span.outline {
       font-family: 'Nagbuloe Outline', serif;
       font-weight: normal;
-    }
-
-    /* Word grouping for "the" and "gala" */
-    .word {
-      display: inline-block;
-      transition: all 1.2s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
     /* Float animation when scrolled into orange section */
