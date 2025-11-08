@@ -104,7 +104,7 @@
       /* Organic blob shape with asymmetric border-radius */
       border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
       cursor: pointer;
-      transition: opacity 0.2s ease;
+      transition: font-family 0.2s ease;
       user-select: none;
       text-transform: uppercase; /* Make text all caps */
     }
@@ -120,14 +120,18 @@
         padding: 0.7rem 1.5rem; /* Tighter on desktop too */
         font-size: 1.8rem;
       }
+      
+      /* Desktop: Hover effect changes to outline font */
+      .nav-item:hover {
+        font-family: 'Nagbuloe Outline', serif;
+        font-weight: normal;
+      }
     }
 
-    .nav-item:hover {
-      opacity: 0.8;
-    }
-
+    /* Mobile: Active/click effect changes to outline font */
     .nav-item:active {
-      opacity: 0.6;
+      font-family: 'Nagbuloe Outline', serif;
+      font-weight: normal;
     }
 
     /* Fixed hero content */
