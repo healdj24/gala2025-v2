@@ -77,9 +77,13 @@
       transform: translateY(100%);
       will-change: transform;
       display: flex;
-      align-items: center;
+      align-items: flex-start; /* Align to top instead of center */
       justify-content: center;
-      padding: 4rem;
+      padding-top: 8rem; /* Add top padding to push content down */
+      padding-left: 1rem;
+      padding-right: 1rem;
+      padding-bottom: 2rem;
+      overflow-y: auto; /* Allow scrolling if content is too tall */
     }
 
     /* Third section content layout */
