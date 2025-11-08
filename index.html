@@ -104,7 +104,7 @@
       /* Organic blob shape with asymmetric border-radius */
       border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
       cursor: pointer;
-      transition: font-family 0.2s ease;
+      transition: opacity 0.2s ease;
       user-select: none;
       text-transform: uppercase; /* Make text all caps */
     }
@@ -120,18 +120,169 @@
         padding: 0.7rem 1.5rem; /* Tighter on desktop too */
         font-size: 1.8rem;
       }
-      
-      /* Desktop: Hover effect changes to outline font */
-      .nav-item:hover {
-        font-family: 'Nagbuloe Outline', serif;
-        font-weight: normal;
+    }
+
+    .nav-item:hover {
+      opacity: 0.8;
+    }
+
+    .nav-item:active {
+      opacity: 0.6;
+    }
+
+    /* Modal/Popup Styles */
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ff6b35;
+      border: 5px solid #ffffff;
+      z-index: 2000;
+      display: none; /* Hidden by default */
+      padding: 2rem;
+      cursor: move; /* Shows that it's draggable */
+      touch-action: none; /* Prevents default touch scrolling during drag */
+    }
+
+    .modal.active {
+      display: block;
+    }
+
+    /* Details modal sizing */
+    .modal.details-modal {
+      width: 80%;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    @media (min-width: 768px) {
+      .modal.details-modal {
+        width: 30%;
       }
     }
 
-    /* Mobile: Active/click effect changes to outline font */
-    .nav-item:active {
-      font-family: 'Nagbuloe Outline', serif;
-      font-weight: normal;
+    /* RSVP modal sizing */
+    .modal.rsvp-modal {
+      width: 60%;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    @media (min-width: 768px) {
+      .modal.rsvp-modal {
+        width: 30%;
+      }
+    }
+
+    /* Modal header with close button */
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #ffffff;
+    }
+
+    .modal-title {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 2rem;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 2.5rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
+      font-family: Arial, sans-serif;
+      font-weight: 300;
+    }
+
+    .modal-close:hover {
+      opacity: 0.7;
+    }
+
+    /* Modal content */
+    .modal-content {
+      font-family: 'Nagbuloe', serif;
+      font-size: 1rem;
+      color: #ffffff;
+      line-height: 1.6;
+    }
+
+    .modal-content p {
+      margin-bottom: 1rem;
+    }
+
+    /* RSVP form styles */
+    .rsvp-form {
+      margin-bottom: 2rem;
+    }
+
+    .rsvp-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-family: 'Nagbuloe', serif;
+      font-size: 1rem;
+      border: 2px solid #ffffff;
+      border-radius: 25px;
+      background: #ffffff;
+      color: #000000;
+      margin-bottom: 1rem;
+    }
+
+    .rsvp-button {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 1rem;
+      border: 2px solid #ffffff;
+      border-radius: 25px;
+      background: #ffffff;
+      color: #ff6b35;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .rsvp-button:hover {
+      opacity: 0.8;
+    }
+
+    .guest-list {
+      margin-top: 1.5rem;
+    }
+
+    .guest-list-title {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .guest-list-items {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .guest-list-items li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     /* Fixed hero content */
@@ -597,6 +748,158 @@
     <div class="nav-item" id="navDetails">Details</div>
     <div class="nav-item" id="navRSVP">RSVP</div>
   </div>
+
+  <!-- Details Modal -->
+  <div class="modal details-modal" id="detailsModal">
+    <div class="modal-header">
+      <h2 class="modal-title">DETAILS</h2>
+      <button class="modal-close" id="closeDetails">&times;</button>
+    </div>
+    <div class="modal-content">
+      <p><strong>When:</strong> December 31, 2025 at 9:00 PM</p>
+      <p><strong>Where:</strong> 123 Broadway Ave, New York, NY 10001</p>
+      <p><strong>Dress Code:</strong> Cocktail attire encouraged</p>
+      <p><strong>What to Expect:</strong> Join us for an unforgettable New Year's Eve celebration featuring live music, dancing, and a midnight champagne toast. The evening will include performances by local artists, a curated selection of food and beverages, and the perfect atmosphere to ring in 2025.</p>
+      <p><strong>Contact:</strong> For questions, email gala@nyc2025.com</p>
+    </div>
+  </div>
+
+  <!-- RSVP Modal -->
+  <div class="modal rsvp-modal" id="rsvpModal">
+    <div class="modal-header">
+      <h2 class="modal-title">RSVP</h2>
+      <button class="modal-close" id="closeRSVP">&times;</button>
+    </div>
+    <div class="modal-content">
+      <form class="rsvp-form" id="rsvpForm">
+        <input type="text" class="rsvp-input" id="nameInput" placeholder="Enter your name" required>
+        <button type="submit" class="rsvp-button">Submit RSVP</button>
+      </form>
+      <div class="guest-list">
+        <h3 class="guest-list-title">Guest List</h3>
+        <ul class="guest-list-items" id="guestList">
+          <!-- Guest names will be added here -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal functionality
+    const detailsModal = document.getElementById('detailsModal');
+    const rsvpModal = document.getElementById('rsvpModal');
+    const navDetails = document.getElementById('navDetails');
+    const navRSVP = document.getElementById('navRSVP');
+    const closeDetails = document.getElementById('closeDetails');
+    const closeRSVP = document.getElementById('closeRSVP');
+
+    // Open modals
+    navDetails.addEventListener('click', () => {
+      detailsModal.classList.add('active');
+    });
+
+    navRSVP.addEventListener('click', () => {
+      rsvpModal.classList.add('active');
+    });
+
+    // Close modals
+    closeDetails.addEventListener('click', () => {
+      detailsModal.classList.remove('active');
+    });
+
+    closeRSVP.addEventListener('click', () => {
+      rsvpModal.classList.remove('active');
+    });
+
+    // Drag functionality for modals
+    function makeDraggable(modal) {
+      let isDragging = false;
+      let currentX;
+      let currentY;
+      let initialX;
+      let initialY;
+      let xOffset = 0;
+      let yOffset = 0;
+
+      modal.addEventListener('mousedown', dragStart);
+      modal.addEventListener('touchstart', dragStart);
+      
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('touchmove', drag);
+      
+      document.addEventListener('mouseup', dragEnd);
+      document.addEventListener('touchend', dragEnd);
+
+      function dragStart(e) {
+        if (e.target.classList.contains('modal-close') || 
+            e.target.classList.contains('rsvp-input') || 
+            e.target.classList.contains('rsvp-button')) {
+          return;
+        }
+
+        if (e.type === 'touchstart') {
+          initialX = e.touches[0].clientX - xOffset;
+          initialY = e.touches[0].clientY - yOffset;
+        } else {
+          initialX = e.clientX - xOffset;
+          initialY = e.clientY - yOffset;
+        }
+
+        if (e.target === modal || modal.contains(e.target)) {
+          isDragging = true;
+        }
+      }
+
+      function drag(e) {
+        if (isDragging) {
+          e.preventDefault();
+
+          if (e.type === 'touchmove') {
+            currentX = e.touches[0].clientX - initialX;
+            currentY = e.touches[0].clientY - initialY;
+          } else {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+          }
+
+          xOffset = currentX;
+          yOffset = currentY;
+
+          setTranslate(currentX, currentY, modal);
+        }
+      }
+
+      function dragEnd() {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+      }
+
+      function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate(calc(-50% + ${xPos}px), calc(-50% + ${yPos}px))`;
+      }
+    }
+
+    makeDraggable(detailsModal);
+    makeDraggable(rsvpModal);
+
+    // RSVP form submission
+    const rsvpForm = document.getElementById('rsvpForm');
+    const nameInput = document.getElementById('nameInput');
+    const guestList = document.getElementById('guestList');
+
+    rsvpForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      
+      if (name) {
+        const li = document.createElement('li');
+        li.textContent = name;
+        guestList.appendChild(li);
+        nameInput.value = '';
+      }
+    });
+  </script>
 
 </body>
 </html>
