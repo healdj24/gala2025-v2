@@ -26,6 +26,13 @@
       font-style: normal;
     }
 
+    @font-face {
+      font-family: 'Nagbuloe Thin';
+      src: url('./fonts/Nagbuloe-Thin.otf') format('opentype');
+      font-weight: 100;
+      font-style: normal;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -79,8 +86,8 @@
       /* Prevent layout shift when font changes */
     }
 
-    .main-title span.outline {
-      font-family: 'Nagbuloe Outline', serif;
+    .main-title span.thin {
+      font-family: 'Nagbuloe Thin', serif;
     }
   </style>
 </head>
@@ -93,23 +100,20 @@
   </div>
 
   <script>
-    // Cycle through each letter, making one outline at a time
+    // Flash all letters between Regular and Thin every 500ms
     const title = document.getElementById('mainTitle');
     const letters = title.querySelectorAll('span');
-    let currentIndex = 0;
+    let isThin = false;
 
     setInterval(function() {
-      // Remove outline from all letters
-      letters.forEach(letter => letter.classList.remove('outline'));
-      
-      // Add outline to current letter (skip the space at index 3)
-      letters[currentIndex].classList.add('outline');
-      
-      // Move to next letter
-      currentIndex++;
-      if (currentIndex >= letters.length) {
-        currentIndex = 0;
-      }
+      letters.forEach(letter => {
+        if (isThin) {
+          letter.classList.remove('thin');
+        } else {
+          letter.classList.add('thin');
+        }
+      });
+      isThin = !isThin;
     }, 500);
   </script>
 </body>
