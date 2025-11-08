@@ -110,7 +110,6 @@
     .word {
       display: inline-block;
       white-space: nowrap;
-      position: relative;
       transition: all 1.2s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
@@ -126,11 +125,20 @@
     }
 
     /* Float animation when scrolled into orange section */
-    .main-title.floated {
-      display: block;
+    .hero.floated {
+      /* Reset hero centering when floated */
+      transform: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
     }
 
-    .main-title.floated .word:nth-child(1) {
+    .hero.floated .small-text {
+      opacity: 0;
+    }
+
+    .hero.floated .main-title .word:nth-child(1) {
       position: fixed;
       top: 3rem;
       left: 3rem;
@@ -138,7 +146,7 @@
       transform-origin: top left;
     }
 
-    .main-title.floated .word:nth-child(3) {
+    .hero.floated .main-title .word:nth-child(3) {
       position: fixed;
       top: 3rem;
       right: 3rem;
@@ -147,7 +155,7 @@
     }
 
     /* Hide the space when floated */
-    .main-title.floated .space {
+    .hero.floated .main-title .space {
       display: none;
     }
 
@@ -464,6 +472,7 @@
     const playButton = document.getElementById('playButton');
     const smallText = document.getElementById('smallText');
     const mainTitle = document.getElementById('mainTitle');
+    const hero = document.querySelector('.hero');
 
     window.addEventListener('scroll', function() {
       const scrollY = window.scrollY;
@@ -477,15 +486,15 @@
         
         // Trigger float animation when deeper into orange section
         if (scrollY >= viewportHeight * 1.5) {
-          mainTitle.classList.add('floated');
+          hero.classList.add('floated');
         } else {
-          mainTitle.classList.remove('floated');
+          hero.classList.remove('floated');
         }
       } else {
         playButton.classList.remove('on-orange');
         smallText.classList.remove('on-orange');
         mainTitle.classList.remove('on-orange');
-        mainTitle.classList.remove('floated');
+        hero.classList.remove('floated');
       }
     });
   </script>
