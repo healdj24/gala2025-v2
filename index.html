@@ -75,15 +75,11 @@
       background: #ff6b35;
       z-index: 500;
       transform: translateY(100%);
-      transition: transform 1.2s ease-out;
+      will-change: transform;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 4rem;
-    }
-
-    .third-section.visible {
-      transform: translateY(0);
     }
 
     /* Third section content layout */
@@ -112,10 +108,10 @@
       text-align: center;
     }
 
-    /* Spacer to allow scrolling */
+    /* Spacer to allow scrolling - extended for smooth third section reveal */
     .scroll-spacer {
       position: relative;
-      height: 200vh;
+      height: 300vh;
       z-index: 0;
     }
 
@@ -546,11 +542,22 @@
         mainTitle.classList.remove('on-orange');
       }
 
-      // When scroll passes 2x viewport height, slide up third section to cover text
-      if (scrollY >= viewportHeight * 2) {
-        thirdSection.classList.add('visible');
+      // Smoothly slide up third section based on scroll progress
+      // Start sliding when scroll reaches 2x viewport, complete by 3x viewport
+      const slideStart = viewportHeight * 2;
+      const slideEnd = viewportHeight * 3;
+      
+      if (scrollY >= slideEnd) {
+        // Fully visible
+        thirdSection.style.transform = 'translateY(0)';
+      } else if (scrollY >= slideStart) {
+        // Gradually slide up based on scroll progress
+        const progress = (scrollY - slideStart) / (slideEnd - slideStart);
+        const translateY = 100 - (progress * 100);
+        thirdSection.style.transform = `translateY(${translateY}%)`;
       } else {
-        thirdSection.classList.remove('visible');
+        // Hidden below viewport
+        thirdSection.style.transform = 'translateY(100%)';
       }
     });
   </script>
