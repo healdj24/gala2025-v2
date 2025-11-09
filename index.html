@@ -111,16 +111,11 @@
       user-select: none;
       text-transform: uppercase;
       opacity: 0; /* Start invisible */
+      transition: opacity 1s ease; /* Fade in over 1 second */
     }
 
     .third-page-rsvp.visible {
       opacity: 1;
-    }
-
-    .third-page-rsvp.flicker-thin {
-      font-family: 'Nagbuloe Outline', serif;
-      font-weight: normal;
-      border: none; /* Remove border during thin flicker */
     }
 
     .third-page-rsvp:hover {
@@ -901,11 +896,12 @@
         const translateValue = 100 - (thirdSectionProgress * 100); // 100% to 0%
         thirdSection.style.transform = `translateY(${translateValue}%)`;
         
-        // Show RSVP button with flicker when third section is fully visible (only once)
-        if (thirdSectionProgress >= 1 && !thirdPageRSVP.dataset.flickered) {
-          thirdPageRSVP.classList.add('visible');
-          thirdPageRSVP.dataset.flickered = 'true'; // Only flicker once
-          startRSVPFlicker();
+        // Fade in RSVP button when third section is fully visible (only once)
+        if (thirdSectionProgress >= 1 && !thirdPageRSVP.dataset.fadedIn) {
+          setTimeout(() => {
+            thirdPageRSVP.classList.add('visible');
+          }, 1000); // 1 second delay
+          thirdPageRSVP.dataset.fadedIn = 'true'; // Only fade in once
         }
         // Don't remove 'visible' class when scrolling back up - button stays permanently
       } else {
@@ -913,33 +909,6 @@
         // Don't remove button visibility - once it appears, it stays
       }
     });
-
-    // RSVP button flicker animation (2.5 seconds)
-    function startRSVPFlicker() {
-      const thirdPageRSVP = document.getElementById('thirdPageRSVP');
-      const flickerTimings = [150, 150, 200, 150, 150, 200, 150, 150, 200, 150, 150, 200, 150]; // Total ~2.5s
-      let currentIndex = 0;
-
-      function flicker() {
-        if (currentIndex >= flickerTimings.length) {
-          // End on bold with border
-          thirdPageRSVP.classList.remove('flicker-thin');
-          return;
-        }
-
-        // Toggle between thin (no border) and bold (with border)
-        if (currentIndex % 2 === 0) {
-          thirdPageRSVP.classList.add('flicker-thin');
-        } else {
-          thirdPageRSVP.classList.remove('flicker-thin');
-        }
-
-        currentIndex++;
-        setTimeout(flicker, flickerTimings[currentIndex - 1]);
-      }
-
-      flicker();
-    }
   </script>
 
 
