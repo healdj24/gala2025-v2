@@ -346,6 +346,7 @@
       transition: opacity 0.5s ease;
       padding: 0;
       text-transform: lowercase;
+      pointer-events: auto; /* Ensure clickable */
     }
 
     .edit-button.visible {
@@ -354,6 +355,11 @@
 
     .edit-button:hover {
       opacity: 0.7;
+    }
+
+    /* Ensure edit container is clickable */
+    .guest-list-items li > div {
+      pointer-events: auto;
     }
 
     /* Edit options as plain text */
