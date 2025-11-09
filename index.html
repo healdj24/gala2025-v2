@@ -1125,17 +1125,89 @@
           const nameSpan = document.createElement('span');
           nameSpan.textContent = guestText;
           
-          // Create edit button (simplified for loaded guests)
+          // Create edit button container
+          const editContainer = document.createElement('div');
+          editContainer.style.display = 'flex';
+          editContainer.style.gap = '0.5rem';
+          
+          // Create edit button
           const editBtn = document.createElement('button');
           editBtn.textContent = 'edit';
           editBtn.classList.add('edit-button');
           editBtn.classList.add('visible'); // Already visible, no animation needed
-          editBtn.addEventListener('click', function() {
-            alert('Edit functionality for existing guests coming soon!');
+          
+          // Create edit options (plain text links)
+          const editOptions = document.createElement('div');
+          editOptions.classList.add('edit-options');
+          
+          // Add +1 link
+          const addPlusOneLink = document.createElement('button');
+          addPlusOneLink.textContent = '+1';
+          addPlusOneLink.classList.add('edit-option-link');
+          addPlusOneLink.addEventListener('click', async function() {
+            // Check if already has +1
+            if (guest.guest_count === 2) {
+              alert('You already have a +1!');
+              return;
+            }
+            
+            // Update in Supabase
+            const { error } = await supabase
+              .from('guests')
+              .update({ guest_count: 2 })
+              .eq('id', guest.id);
+            
+            if (error) {
+              console.error('Error updating guest:', error);
+              alert('Error updating RSVP');
+              return;
+            }
+            
+            // Reload guest list
+            await loadGuestsFromDatabase();
+            alert('Added +1! Please pay additional $125 to @maxheald on Venmo.');
           });
           
+          // Delete link
+          const deleteLink = document.createElement('button');
+          deleteLink.textContent = 'delete';
+          deleteLink.classList.add('edit-option-link');
+          deleteLink.addEventListener('click', async function() {
+            if (confirm(`Remove ${guest.name} from the guest list?`)) {
+              // Delete from Supabase
+              const { error } = await supabase
+                .from('guests')
+                .delete()
+                .eq('id', guest.id);
+              
+              if (error) {
+                console.error('Error deleting guest:', error);
+                alert('Error deleting RSVP');
+                return;
+              }
+              
+              // Reload guest list
+              await loadGuestsFromDatabase();
+            }
+          });
+          
+          editOptions.appendChild(addPlusOneLink);
+          editOptions.appendChild(deleteLink);
+          
+          // Toggle edit options when edit is clicked
+          editBtn.addEventListener('click', function() {
+            const isActive = editOptions.classList.toggle('active');
+            if (isActive) {
+              editBtn.style.display = 'none'; // Hide edit when options show
+            }
+          });
+          
+          // Add elements to edit container
+          editContainer.appendChild(editBtn);
+          editContainer.appendChild(editOptions);
+          
           li.appendChild(nameSpan);
-          li.appendChild(editBtn);
+          li.appendChild(editContainer);
           guestList.appendChild(li);
         });
         
