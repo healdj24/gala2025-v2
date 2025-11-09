@@ -954,7 +954,15 @@
     </div>
   </div>
 
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://chmllmyqattcdgmuwpgr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNobWxsbXlxYXR0Y2RnbXV3cGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2OTk0MzksImV4cCI6MjA3ODI3NTQzOX0.hy1Gf9uN9mj7dxMQxCZVOLk3cEn_UM3BbTeM7WDC0Do';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     // Modal functionality
     const detailsModal = document.getElementById('detailsModal');
     const rsvpModal = document.getElementById('rsvpModal');
@@ -1068,7 +1076,8 @@
       verified: false,
       paid: false,
       isEditingPlusOne: false, // Track if adding +1 to existing entry
-      existingListItem: null // Reference to the list item being edited
+      existingListItem: null, // Reference to the list item being edited
+      guestId: null // Supabase guest ID
     };
 
     // Get all step elements
@@ -1103,6 +1112,53 @@
       guestListStep1.innerHTML = guestList.innerHTML;
     }
 
+    // Load existing guests from Supabase
+    async function loadGuestsFromDatabase() {
+      try {
+        const { data, error } = await supabase
+          .from('guests')
+          .select('*')
+          .eq('verified', true)
+          .order('created_at', { ascending: true });
+        
+        if (error) {
+          console.error('Error loading guests:', error);
+          return;
+        }
+        
+        // Clear existing list
+        guestList.innerHTML = '';
+        
+        // Add each guest to the list
+        data.forEach(guest => {
+          const li = document.createElement('li');
+          const guestText = guest.guest_count === 2 ? 
+            `${guest.name} +1` : 
+            guest.name;
+          
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = guestText;
+          
+          // Create edit button (simplified for loaded guests)
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'edit';
+          editBtn.classList.add('edit-button');
+          editBtn.classList.add('visible'); // Already visible, no animation needed
+          editBtn.addEventListener('click', function() {
+            alert('Edit functionality for existing guests coming soon!');
+          });
+          
+          li.appendChild(nameSpan);
+          li.appendChild(editBtn);
+          guestList.appendChild(li);
+        });
+        
+        syncGuestLists();
+      } catch (err) {
+        console.error('Error loading guests:', err);
+      }
+    }
+
     // Helper function to show specific step
     function showStep(stepNum) {
       Object.values(steps).forEach(step => step.style.display = 'none');
@@ -1132,24 +1188,73 @@
     });
 
     // Step 3: Phone number input
-    phoneBtn.addEventListener('click', () => {
+    phoneBtn.addEventListener('click', async () => {
       const phone = phoneInput.value.trim();
       if (phone) {
         rsvpData.phone = phone;
-        // In real implementation, this would call Twilio API to send SMS
-        console.log('Sending verification code to:', phone);
-        console.log('Demo code: 0000');
-        showStep(4);
+        
+        // Generate demo code (will be replaced by Twilio later)
+        const demoCode = '0000';
+        
+        try {
+          // Save to Supabase
+          const { data, error } = await supabase
+            .from('guests')
+            .insert([{
+              name: rsvpData.name,
+              phone: phone,
+              guest_count: rsvpData.guestCount,
+              verification_code: demoCode,
+              verified: false
+            }])
+            .select();
+          
+          if (error) {
+            console.error('Supabase error:', error);
+            alert('Error saving RSVP. Please try again.');
+            return;
+          }
+          
+          // Store guest ID for later verification
+          rsvpData.guestId = data[0].id;
+          
+          console.log('Guest saved to Supabase with ID:', rsvpData.guestId);
+          console.log('Demo code: 0000 (will send via Twilio when approved)');
+          
+          showStep(4);
+        } catch (err) {
+          console.error('Error:', err);
+          alert('Error saving RSVP. Please try again.');
+        }
       }
     });
 
     // Step 4: Verification code
-    verifyBtn.addEventListener('click', () => {
+    verifyBtn.addEventListener('click', async () => {
       const code = codeInput.value.trim();
+      
       // For demo, accept "0000" or any 4-digit code
       if (code === '0000' || code.length === 4) {
-        rsvpData.verified = true;
-        showStep(5);
+        try {
+          // Mark as verified in Supabase
+          const { error } = await supabase
+            .from('guests')
+            .update({ verified: true })
+            .eq('id', rsvpData.guestId);
+          
+          if (error) {
+            console.error('Supabase error:', error);
+          }
+          
+          rsvpData.verified = true;
+          console.log('Guest verified in Supabase');
+          showStep(5);
+        } catch (err) {
+          console.error('Error:', err);
+          // Continue anyway for demo
+          rsvpData.verified = true;
+          showStep(5);
+        }
       } else {
         alert('Invalid code. For demo, use 0000');
       }
@@ -1292,7 +1397,10 @@
     });
 
     // Reset RSVP flow when modal is opened
-    navRSVP.addEventListener('click', () => {
+    navRSVP.addEventListener('click', async () => {
+      // Load guests from database
+      await loadGuestsFromDatabase();
+      
       // Check if there are guests - if yes, show list, otherwise show form
       if (guestList.children.length > 0) {
         showStep(7);
@@ -1304,6 +1412,9 @@
         codeInput.value = '';
       }
     });
+
+    // Load guests when page first loads
+    loadGuestsFromDatabase();
   </script>
 
 </body>
