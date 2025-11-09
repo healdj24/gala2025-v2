@@ -68,15 +68,13 @@
       background: #ff6b35;
       z-index: 150; /* Higher than hero container (100) to cover it */
       transform: translateY(100%); /* Start hidden below */
-      transition: transform 1.2s cubic-bezier(0.33, 1, 0.68, 1);
+      /* No transition - will be controlled directly by scroll */
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 2rem;
-    }
-
-    .third-section.visible {
-      transform: translateY(0); /* Slide up to cover */
+      gap: 2rem;
     }
 
     .third-section-content {
@@ -99,52 +97,34 @@
       }
     }
 
-    /* Bottom navigation bar */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 10.5vh; /* 30% shorter than 15vh on mobile */
-      background: transparent; /* No background, items float */
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      gap: 1rem; /* Space between the two items */
-      padding: 0 1rem;
-    }
-
-    .nav-item {
-      flex: 1;
-      max-width: 140px; /* Smaller on mobile */
-      padding: 0.4rem 0.9rem; /* Much tighter padding */
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* RSVP button on third page */
+    .third-page-rsvp {
+      padding: 0.4rem 0.9rem;
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
-      font-size: 0.9rem; /* Smaller font on mobile */
+      font-size: 0.9rem;
       color: #ffffff;
-      background: #ff6b35; /* Orange background for each item */
-      border: 2px solid #000000; /* Thin black border for visibility */
-      /* Organic blob shape with asymmetric border-radius */
+      background: #ff6b35;
+      border: 2px solid #ffffff; /* White border on orange background */
       border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
       cursor: pointer;
-      transition: opacity 0.2s ease;
       user-select: none;
-      text-transform: uppercase; /* Make text all caps */
+      text-transform: uppercase;
+      opacity: 0; /* Start invisible */
+      transition: opacity 1s ease;
     }
 
-    /* Different blob shape for second item */
-    .nav-item:last-child {
-      border-radius: 45% 55% 62% 38% / 53% 59% 41% 47%;
+    .third-page-rsvp.visible {
+      opacity: 1;
+    }
+
+    .third-page-rsvp:hover {
+      opacity: 0.8;
     }
 
     @media (min-width: 768px) {
-      .nav-item {
-        max-width: 200px;
-        padding: 0.7rem 1.5rem; /* Tighter on desktop too */
+      .third-page-rsvp {
+        padding: 0.7rem 1.5rem;
         font-size: 1.8rem;
       }
     }
@@ -653,6 +633,7 @@
     <div class="third-section-content">
       Join us for an unforgettable evening of celebration as we ring in the New Year together. Expect incredible music, delicious food and drinks, and the best company you could ask for. This year's gala will feature live performances, a midnight champagne toast, and dancing until dawn. Dress to impress and come ready to make memories that will last a lifetime. We can't wait to celebrate with you!
     </div>
+    <button class="third-page-rsvp" id="thirdPageRSVP">RSVP</button>
   </div>
 
   <!-- Load YouTube IFrame API -->
@@ -903,39 +884,33 @@
         orangeBlurb.classList.remove('on-orange');
       }
 
-      // Third section slide-up effect
-      const scrollProgress = scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      // Third section slide-up effect - directly tied to scroll position
       const thirdSection = document.getElementById('thirdSection');
+      const thirdPageRSVP = document.getElementById('thirdPageRSVP');
+      const scrollProgress = scrollY / (document.documentElement.scrollHeight - window.innerHeight);
       
-      // Start showing third section after 50% scroll (when you're past the second orange page)
+      // Start sliding up third section after 50% scroll
+      // Map scroll progress (0.5 to 1.0) to translateY (100% to 0%)
       if (scrollProgress > 0.5) {
-        thirdSection.classList.add('visible');
+        const thirdSectionProgress = (scrollProgress - 0.5) / 0.5; // 0 to 1
+        const translateValue = 100 - (thirdSectionProgress * 100); // 100% to 0%
+        thirdSection.style.transform = `translateY(${translateValue}%)`;
+        
+        // Fade in RSVP button after 1 second once third section is fully visible
+        if (thirdSectionProgress >= 1) {
+          setTimeout(() => {
+            thirdPageRSVP.classList.add('visible');
+          }, 1000);
+        } else {
+          thirdPageRSVP.classList.remove('visible');
+        }
       } else {
-        thirdSection.classList.remove('visible');
+        thirdSection.style.transform = 'translateY(100%)'; // Keep hidden
+        thirdPageRSVP.classList.remove('visible');
       }
     });
   </script>
 
-  <!-- Bottom Navigation Bar -->
-  <div class="bottom-nav">
-    <div class="nav-item" id="navDetails">Details</div>
-    <div class="nav-item" id="navRSVP">RSVP</div>
-  </div>
-
-  <!-- Details Modal -->
-  <div class="modal details-modal" id="detailsModal">
-    <div class="modal-header">
-      <h2 class="modal-title">DETAILS</h2>
-      <button class="modal-close" id="closeDetails">&times;</button>
-    </div>
-    <div class="modal-content">
-      <p><strong>When:</strong> December 31, 2025 at 9:00 PM</p>
-      <p><strong>Where:</strong> 123 Broadway Ave, New York, NY 10001</p>
-      <p><strong>Dress Code:</strong> Cocktail attire encouraged</p>
-      <p><strong>What to Expect:</strong> Join us for an unforgettable New Year's Eve celebration featuring live music, dancing, and a midnight champagne toast. The evening will include performances by local artists, a curated selection of food and beverages, and the perfect atmosphere to ring in 2025.</p>
-      <p><strong>Contact:</strong> For questions, email gala@nyc2025.com</p>
-    </div>
-  </div>
 
   <!-- RSVP Modal -->
   <div class="modal rsvp-modal" id="rsvpModal">
@@ -1022,27 +997,16 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Modal functionality
-    const detailsModal = document.getElementById('detailsModal');
     const rsvpModal = document.getElementById('rsvpModal');
-    const navDetails = document.getElementById('navDetails');
-    const navRSVP = document.getElementById('navRSVP');
-    const closeDetails = document.getElementById('closeDetails');
+    const thirdPageRSVPBtn = document.getElementById('thirdPageRSVP');
     const closeRSVP = document.getElementById('closeRSVP');
 
-    // Open modals
-    navDetails.addEventListener('click', () => {
-      detailsModal.classList.add('active');
-    });
-
-    navRSVP.addEventListener('click', () => {
+    // Open RSVP modal from third page button
+    thirdPageRSVPBtn.addEventListener('click', () => {
       rsvpModal.classList.add('active');
     });
 
-    // Close modals
-    closeDetails.addEventListener('click', () => {
-      detailsModal.classList.remove('active');
-    });
-
+    // Close RSVP modal
     closeRSVP.addEventListener('click', () => {
       rsvpModal.classList.remove('active');
     });
@@ -1132,7 +1096,6 @@
       }
     }
 
-    makeDraggable(detailsModal);
     makeDraggable(rsvpModal);
 
     // RSVP Multi-Step Flow
