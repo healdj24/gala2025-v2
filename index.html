@@ -1447,11 +1447,13 @@
         syncGuestLists();
       }, 2000);
       
-      // Show guest list
-      showStep(7);
+      // Go back to step 1 so user can add another guest
+      showStep(1);
       
-      // Reset for next RSVP (optional)
-      // Could also keep data and disable re-RSVP
+      // Clear inputs for next RSVP
+      nameInput.value = '';
+      phoneInput.value = '';
+      codeInput.value = '';
     });
 
     // Reset RSVP flow when modal is opened
@@ -1459,16 +1461,12 @@
       // Load guests from database
       await loadGuestsFromDatabase();
       
-      // Check if there are guests - if yes, show list, otherwise show form
-      if (guestList.children.length > 0) {
-        showStep(7);
-      } else {
-        showStep(1);
-        // Clear inputs
-        nameInput.value = '';
-        phoneInput.value = '';
-        codeInput.value = '';
-      }
+      // Always show step 1 (form + guest list)
+      showStep(1);
+      // Clear inputs for new RSVP
+      nameInput.value = '';
+      phoneInput.value = '';
+      codeInput.value = '';
     });
 
     // Load guests when page first loads
