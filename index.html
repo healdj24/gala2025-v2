@@ -150,14 +150,14 @@
 
     /* RSVP modal sizing */
     .modal.rsvp-modal {
-      width: 72%; /* 20% wider than 60% on mobile */
+      width: 79.2%; /* 10% wider than 72% on mobile */
       max-height: 70vh;
       overflow-y: auto;
     }
 
     @media (min-width: 768px) {
       .modal.rsvp-modal {
-        width: 30%;
+        width: 33%; /* 10% wider than 30% on desktop */
       }
     }
 
@@ -359,7 +359,8 @@
     /* Edit options as plain text */
     .edit-options {
       display: none;
-      gap: 0.5rem;
+      align-items: center;
+      gap: 0.3rem;
     }
 
     .edit-options.active {
@@ -380,6 +381,12 @@
 
     .edit-option-link:hover {
       opacity: 0.7;
+    }
+
+    .edit-separator {
+      color: #ffffff;
+      font-size: 0.7rem;
+      opacity: 0.6;
     }
 
     .guest-list-items li {
@@ -1191,15 +1198,19 @@
             }
           });
           
+          // Add separator between options
+          const separator = document.createElement('span');
+          separator.textContent = '|';
+          separator.classList.add('edit-separator');
+          
           editOptions.appendChild(addPlusOneLink);
+          editOptions.appendChild(separator);
           editOptions.appendChild(deleteLink);
           
-          // Toggle edit options when edit is clicked
+          // Toggle edit options when edit is clicked - replaces edit button
           editBtn.addEventListener('click', function() {
-            const isActive = editOptions.classList.toggle('active');
-            if (isActive) {
-              editBtn.style.display = 'none'; // Hide edit when options show
-            }
+            editBtn.style.display = 'none';
+            editOptions.classList.add('active');
           });
           
           // Add elements to edit container
@@ -1417,15 +1428,19 @@
         }
       });
       
+      // Add separator between options
+      const separator = document.createElement('span');
+      separator.textContent = '|';
+      separator.classList.add('edit-separator');
+      
       editOptions.appendChild(addPlusOneLink);
+      editOptions.appendChild(separator);
       editOptions.appendChild(deleteLink);
       
-      // Toggle edit options when edit is clicked
+      // Toggle edit options when edit is clicked - replaces edit button
       editBtn.addEventListener('click', function() {
-        const isActive = editOptions.classList.toggle('active');
-        if (isActive) {
-          editBtn.style.display = 'none'; // Hide edit when options show
-        }
+        editBtn.style.display = 'none';
+        editOptions.classList.add('active');
       });
       
       // Add elements to edit container
