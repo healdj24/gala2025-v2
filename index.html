@@ -896,8 +896,8 @@
         const translateValue = 100 - (thirdSectionProgress * 100); // 100% to 0%
         thirdSection.style.transform = `translateY(${translateValue}%)`;
         
-        // Fade in RSVP button when third section is fully visible (only once)
-        if (thirdSectionProgress >= 1 && !thirdPageRSVP.dataset.fadedIn) {
+        // Fade in RSVP button when third section is halfway visible (only once)
+        if (thirdSectionProgress >= 0.5 && !thirdPageRSVP.dataset.fadedIn) {
           setTimeout(() => {
             thirdPageRSVP.classList.add('visible');
           }, 1000); // 1 second delay
