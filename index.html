@@ -54,8 +54,49 @@
     /* Spacer to allow scrolling */
     .scroll-spacer {
       position: relative;
-      height: 100vh; /* Reduced to just 2 pages */
+      height: 200vh; /* Extended to allow third page - 100vh for orange section + 100vh for third section */
       z-index: 0;
+    }
+
+    /* Third orange section that slides up */
+    .third-section {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100vh;
+      background: #ff6b35;
+      z-index: 5;
+      transform: translateY(100%); /* Start hidden below */
+      transition: transform 1.2s cubic-bezier(0.33, 1, 0.68, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .third-section.visible {
+      transform: translateY(0); /* Slide up to cover */
+    }
+
+    .third-section-content {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 0.94rem; /* Same as orange-blurb on mobile */
+      color: #ffffff;
+      text-align: center;
+      width: 92%; /* Same width as orange-blurb on mobile */
+      max-width: 90%;
+      line-height: 1.4;
+      padding: 0 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .third-section-content {
+        font-size: 1.6rem; /* Slightly bigger than orange-blurb (1.4rem) for desktop since it's a full screen */
+        width: auto;
+        max-width: 70%; /* Centered and not too wide */
+      }
     }
 
     /* Bottom navigation bar */
@@ -607,6 +648,13 @@
   <!-- Scroll spacer to allow continued scrolling -->
   <div class="scroll-spacer"></div>
 
+  <!-- Third orange section -->
+  <div class="third-section" id="thirdSection">
+    <div class="third-section-content">
+      Join us for an unforgettable evening of celebration as we ring in the New Year together. Expect incredible music, delicious food and drinks, and the best company you could ask for. This year's gala will feature live performances, a midnight champagne toast, and dancing until dawn. Dress to impress and come ready to make memories that will last a lifetime. We can't wait to celebrate with you!
+    </div>
+  </div>
+
   <!-- Load YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -853,6 +901,17 @@
         smallText.classList.remove('on-orange');
         mainTitle.classList.remove('on-orange');
         orangeBlurb.classList.remove('on-orange');
+      }
+
+      // Third section slide-up effect
+      const scrollProgress = scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      const thirdSection = document.getElementById('thirdSection');
+      
+      // Start showing third section after 50% scroll (when you're past the second orange page)
+      if (scrollProgress > 0.5) {
+        thirdSection.classList.add('visible');
+      } else {
+        thirdSection.classList.remove('visible');
       }
     });
   </script>
