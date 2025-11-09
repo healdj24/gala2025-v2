@@ -853,9 +853,16 @@
       document.addEventListener('touchend', dragEnd);
 
       function dragStart(e) {
+        // Don't drag if clicking on interactive elements
         if (e.target.classList.contains('modal-close') || 
             e.target.classList.contains('rsvp-input') || 
             e.target.classList.contains('rsvp-button')) {
+          return;
+        }
+
+        // Don't drag if clicking inside the content area
+        if (e.target.classList.contains('modal-content') || 
+            e.target.closest('.modal-content')) {
           return;
         }
 
