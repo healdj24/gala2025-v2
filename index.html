@@ -1146,98 +1146,48 @@
           
           const nameSpan = document.createElement('span');
           nameSpan.textContent = guestText;
+          nameSpan.style.marginRight = '0.5rem';
           
-          // Create edit button container
-          const editContainer = document.createElement('div');
-          editContainer.style.display = 'flex';
-          editContainer.style.gap = '0.5rem';
-          
-          // Create edit button
-          const editBtn = document.createElement('button');
-          editBtn.textContent = 'edit';
-          editBtn.classList.add('edit-button');
-          editBtn.classList.add('visible'); // Already visible, no animation needed
-          
-          // Create edit options (plain text links)
-          const editOptions = document.createElement('div');
-          editOptions.classList.add('edit-options');
-          
-          // Add +1 link
-          const addPlusOneLink = document.createElement('button');
-          addPlusOneLink.textContent = '+1';
-          addPlusOneLink.classList.add('edit-option-link');
-          addPlusOneLink.addEventListener('click', async function() {
-            // Check if already has +1
-            if (guest.guest_count === 2) {
-              alert('You already have a +1!');
-              return;
-            }
+          // Simple edit button - just triggers showing options
+          const editBtn = document.createElement('span');
+          editBtn.innerHTML = '<button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.8rem;padding:0;">edit</button>';
+          editBtn.querySelector('button').onclick = async function() {
+            console.log('EDIT CLICKED - Starting...');
+            // Replace button with options
+            editBtn.innerHTML = '<button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.7rem;padding:0;margin-right:0.3rem;">+1</button><span style="color:#fff;opacity:0.6;font-size:0.7rem;margin-right:0.3rem;">|</span><button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.7rem;padding:0;">delete</button>';
             
-            // Update in Supabase
-            const { error } = await supabase
-              .from('guests')
-              .update({ guest_count: 2 })
-              .eq('id', guest.id);
-            
-            if (error) {
-              console.error('Error updating guest:', error);
-              alert('Error updating RSVP');
-              return;
-            }
-            
-            // Reload guest list
-            await loadGuestsFromDatabase();
-            alert('Added +1! Please pay additional $125 to @maxheald on Venmo.');
-          });
-          
-          // Delete link
-          const deleteLink = document.createElement('button');
-          deleteLink.textContent = 'delete';
-          deleteLink.classList.add('edit-option-link');
-          deleteLink.addEventListener('click', async function() {
-            if (confirm(`Remove ${guest.name} from the guest list?`)) {
-              // Delete from Supabase
-              const { error } = await supabase
-                .from('guests')
-                .delete()
-                .eq('id', guest.id);
-              
-              if (error) {
-                console.error('Error deleting guest:', error);
-                alert('Error deleting RSVP');
+            // Add +1 click handler
+            editBtn.querySelectorAll('button')[0].onclick = async function() {
+              if (guest.guest_count === 2) {
+                alert('You already have a +1!');
                 return;
               }
-              
-              // Reload guest list
-              await loadGuestsFromDatabase();
-            }
-          });
-          
-          // Add separator between options
-          const separator = document.createElement('span');
-          separator.textContent = '|';
-          separator.classList.add('edit-separator');
-          
-          editOptions.appendChild(addPlusOneLink);
-          editOptions.appendChild(separator);
-          editOptions.appendChild(deleteLink);
-          
-          // Toggle edit options when edit is clicked - replaces edit button
-          editBtn.addEventListener('click', function(e) {
-            console.log('Edit button clicked!');
-            e.preventDefault();
-            e.stopPropagation();
-            editBtn.style.display = 'none';
-            editOptions.classList.add('active');
-            console.log('Options should be visible now');
-          });
-          
-          // Add elements to edit container
-          editContainer.appendChild(editBtn);
-          editContainer.appendChild(editOptions);
+              const { error } = await supabase
+                .from('guests')
+                .update({ guest_count: 2 })
+                .eq('id', guest.id);
+              if (!error) {
+                await loadGuestsFromDatabase();
+                alert('Added +1! Please pay additional $125 to @maxheald on Venmo.');
+              }
+            };
+            
+            // Add delete click handler
+            editBtn.querySelectorAll('button')[1].onclick = async function() {
+              if (confirm(`Remove ${guest.name} from the guest list?`)) {
+                const { error } = await supabase
+                  .from('guests')
+                  .delete()
+                  .eq('id', guest.id);
+                if (!error) {
+                  await loadGuestsFromDatabase();
+                }
+              }
+            };
+          };
           
           li.appendChild(nameSpan);
-          li.appendChild(editContainer);
+          li.appendChild(editBtn);
           guestList.appendChild(li);
         });
         
@@ -1395,84 +1345,47 @@
       const nameSpan = document.createElement('span');
       nameSpan.textContent = guestText;
       nameSpan.classList.add('guest-name-animated');
+      nameSpan.style.marginRight = '0.5rem';
       
-      // Create edit button container
-      const editContainer = document.createElement('div');
-      editContainer.style.display = 'flex';
-      editContainer.style.gap = '0.5rem';
+      // Simple edit button - starts hidden, fades in after animation
+      const editBtn = document.createElement('span');
+      editBtn.style.opacity = '0';
+      editBtn.style.transition = 'opacity 0.5s ease';
+      editBtn.innerHTML = '<button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.8rem;padding:0;">edit</button>';
+      editBtn.querySelector('button').onclick = async function() {
+        console.log('NEW GUEST EDIT CLICKED');
+        // Replace button with options
+        editBtn.innerHTML = '<button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.7rem;padding:0;margin-right:0.3rem;">+1</button><span style="color:#fff;opacity:0.6;font-size:0.7rem;margin-right:0.3rem;">|</span><button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.7rem;padding:0;">delete</button>';
+        
+        // Add +1 click handler
+        editBtn.querySelectorAll('button')[0].onclick = function() {
+          if (guestText.includes('+1')) {
+            alert('You already have a +1!');
+            return;
+          }
+          rsvpData.name = rsvpData.name;
+          rsvpData.guestCount = 2;
+          rsvpData.isEditingPlusOne = true;
+          rsvpData.existingListItem = li;
+          ticketPrice.textContent = '$250';
+          showStep(5);
+        };
+        
+        // Add delete click handler
+        editBtn.querySelectorAll('button')[1].onclick = function() {
+          li.remove();
+          syncGuestLists();
+          if (guestList.children.length === 0) {
+            showStep(1);
+            nameInput.value = '';
+            phoneInput.value = '';
+            codeInput.value = '';
+          }
+        };
+      };
       
-      // Create edit button
-      const editBtn = document.createElement('button');
-      editBtn.textContent = 'edit';
-      editBtn.classList.add('edit-button');
-      
-      // Create edit options (plain text links)
-      const editOptions = document.createElement('div');
-      editOptions.classList.add('edit-options');
-      
-      // Add +1 link
-      const addPlusOneLink = document.createElement('button');
-      addPlusOneLink.textContent = '+1';
-      addPlusOneLink.classList.add('edit-option-link');
-      addPlusOneLink.addEventListener('click', function() {
-        // Check if already has +1
-        if (guestText.includes('+1')) {
-          alert('You already have a +1!');
-          return;
-        }
-        // Set up for editing existing entry
-        rsvpData.name = rsvpData.name; // Keep the name
-        rsvpData.guestCount = 2;
-        rsvpData.isEditingPlusOne = true;
-        rsvpData.existingListItem = li;
-        ticketPrice.textContent = '$250';
-        editOptions.classList.remove('active');
-        editBtn.style.display = 'inline-block';
-        showStep(5); // Go to payment screen
-      });
-      
-      // Delete link
-      const deleteLink = document.createElement('button');
-      deleteLink.textContent = 'delete';
-      deleteLink.classList.add('edit-option-link');
-      deleteLink.addEventListener('click', function() {
-        li.remove();
-        syncGuestLists();
-        // If no more guests, show the form again
-        if (guestList.children.length === 0) {
-          showStep(1);
-          nameInput.value = '';
-          phoneInput.value = '';
-          codeInput.value = '';
-        }
-      });
-      
-      // Add separator between options
-      const separator = document.createElement('span');
-      separator.textContent = '|';
-      separator.classList.add('edit-separator');
-      
-      editOptions.appendChild(addPlusOneLink);
-      editOptions.appendChild(separator);
-      editOptions.appendChild(deleteLink);
-      
-      // Toggle edit options when edit is clicked - replaces edit button
-      editBtn.addEventListener('click', function(e) {
-        console.log('Edit button clicked (new guest)!');
-        e.preventDefault();
-        e.stopPropagation();
-        editBtn.style.display = 'none';
-        editOptions.classList.add('active');
-        console.log('Options should be visible now (new guest)');
-      });
-      
-      // Add elements to edit container
-      editContainer.appendChild(editBtn);
-      editContainer.appendChild(editOptions);
-      
-      // Add name and edit container to list item
       li.appendChild(nameSpan);
-      li.appendChild(editContainer);
+      li.appendChild(editBtn);
       guestList.appendChild(li);
       
       // Sync guest list to step 1
@@ -1480,8 +1393,7 @@
       
       // Fade in edit button after 2 second animation
       setTimeout(() => {
-        editBtn.classList.add('visible');
-        // Also sync after animation to get the visible edit button
+        editBtn.style.opacity = '1';
         syncGuestLists();
       }, 2000);
       
