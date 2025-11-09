@@ -164,7 +164,7 @@
 
     /* RSVP modal sizing */
     .modal.rsvp-modal {
-      width: 60%;
+      width: 72%; /* 20% wider than 60% on mobile */
       max-height: 70vh;
       overflow-y: auto;
     }
@@ -256,7 +256,7 @@
 
     .rsvp-input {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.68rem 1rem; /* 10% skinnier vertically (0.75 * 0.9) */
       font-family: 'Nagbuloe', serif;
       font-size: 1rem;
       border: 2px solid #ffffff;
@@ -268,7 +268,7 @@
 
     .rsvp-button {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.68rem 1rem; /* 10% skinnier vertically (0.75 * 0.9) */
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
       font-size: 1rem;
@@ -294,6 +294,7 @@
       font-size: 1.2rem;
       color: #ffffff;
       margin-bottom: 0.5rem;
+      text-align: center; /* Center to match the buttons */
     }
 
     .guest-list-items {
