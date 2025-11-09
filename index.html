@@ -221,6 +221,28 @@
       font-size: 1rem;
       color: #ffffff;
       line-height: 1.6;
+      max-height: calc(70vh - 120px); /* Subtract header height */
+      overflow-y: auto; /* Enable scrolling */
+      padding-right: 0.5rem; /* Space for scrollbar */
+    }
+
+    /* Custom white scrollbar for modal content */
+    .modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+      background: #ffffff;
+      border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.8);
     }
 
     .modal-content p {
