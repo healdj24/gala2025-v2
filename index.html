@@ -284,6 +284,42 @@
       opacity: 0.8;
     }
 
+    /* Split buttons for "just me" / "plus one" */
+    .rsvp-split-button {
+      flex: 1;
+      padding: 0.68rem 1rem;
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 1rem;
+      border: 2px solid #ffffff;
+      border-radius: 25px;
+      background: #ff6b35;
+      color: #ffffff;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      text-transform: lowercase;
+    }
+
+    .rsvp-split-button:hover {
+      opacity: 0.8;
+    }
+
+    /* Animated guest name in list */
+    @keyframes nameFlicker {
+      0%, 10%, 20%, 30%, 40%, 50%, 60%, 70%, 80%, 90%, 100% {
+        font-family: 'Nagbuloe', serif;
+        font-weight: bold;
+      }
+      5%, 15%, 25%, 35%, 45%, 55%, 65%, 75%, 85%, 95% {
+        font-family: 'Nagbuloe Outline', serif;
+        font-weight: normal;
+      }
+    }
+
+    .guest-name-animated {
+      animation: nameFlicker 2s ease-in-out;
+    }
+
     .guest-list {
       margin-top: 1.5rem;
     }
@@ -793,17 +829,70 @@
       <h2 class="modal-title">RSVP</h2>
       <button class="modal-close" id="closeRSVP">&times;</button>
     </div>
-    <div class="modal-content">
-      <form class="rsvp-form" id="rsvpForm">
-        <input type="text" class="rsvp-input" id="nameInput" placeholder="Enter your name" required>
-        <button type="submit" class="rsvp-button">Submit RSVP</button>
-      </form>
-      <div class="guest-list">
-        <h3 class="guest-list-title">Guest List</h3>
+    <div class="modal-content" id="rsvpContent">
+      
+      <!-- Step 1: Enter Name -->
+      <div class="rsvp-step" id="step1" style="display: block;">
+        <input type="text" class="rsvp-input" id="nameInput" placeholder="enter your name" required>
+        <button class="rsvp-button" id="nameBtn">continue</button>
+      </div>
+
+      <!-- Step 2: Choose Guest Count -->
+      <div class="rsvp-step" id="step2" style="display: none;">
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="rsvp-split-button" id="justMeBtn">just me</button>
+          <button class="rsvp-split-button" id="plusOneBtn">plus one</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Enter Phone Number -->
+      <div class="rsvp-step" id="step3" style="display: none;">
+        <input type="tel" class="rsvp-input" id="phoneInput" placeholder="enter your phone number" required>
+        <button class="rsvp-button" id="phoneBtn">continue</button>
+      </div>
+
+      <!-- Step 4: Enter Verification Code -->
+      <div class="rsvp-step" id="step4" style="display: none;">
+        <p style="color: #ffffff; font-size: 0.9rem; margin-bottom: 1rem; text-align: center;">
+          you should have received a text. if not, <span id="resendCode" style="text-decoration: underline; cursor: pointer;">click here</span>
+        </p>
+        <input type="text" class="rsvp-input" id="codeInput" placeholder="enter verification code" maxlength="4" required>
+        <button class="rsvp-button" id="verifyBtn">continue</button>
+      </div>
+
+      <!-- Step 5: Payment Confirmation -->
+      <div class="rsvp-step" id="step5" style="display: none;">
+        <p style="color: #ffffff; font-size: 1.1rem; margin-bottom: 1rem; text-align: center; line-height: 1.5;">
+          have you paid for your ticket yet?
+        </p>
+        <p style="color: #ffffff; font-size: 0.9rem; margin-bottom: 1rem; text-align: center;">
+          venmo <strong id="ticketPrice">$125</strong> to <strong>@maxheald</strong>
+        </p>
+        <p style="color: #ffffff; font-size: 0.8rem; margin-bottom: 1.5rem; text-align: center; font-style: italic;">
+          *please only click the button below if you've already paid
+        </p>
+        <button class="rsvp-button" id="paidBtn">i've paid</button>
+      </div>
+
+      <!-- Step 6: Confirmation -->
+      <div class="rsvp-step" id="step6" style="display: none;">
+        <p style="color: #ffffff; font-size: 1.5rem; margin-bottom: 1rem; text-align: center; font-weight: bold;">
+          you're in! stoked to have you for the night
+        </p>
+        <p style="color: #ffffff; font-size: 1rem; margin-bottom: 1.5rem; text-align: center; line-height: 1.5;">
+          you should receive a text confirmation momentarily. this will act as your ticket!
+        </p>
+        <button class="rsvp-button" id="letsGoBtn">let's go</button>
+      </div>
+
+      <!-- Step 7: Guest List View -->
+      <div class="rsvp-step" id="step7" style="display: none;">
+        <h3 class="guest-list-title">guest list</h3>
         <ul class="guest-list-items" id="guestList">
           <!-- Guest names will be added here -->
         </ul>
       </div>
+
     </div>
   </div>
 
@@ -913,20 +1002,136 @@
     makeDraggable(detailsModal);
     makeDraggable(rsvpModal);
 
-    // RSVP form submission
-    const rsvpForm = document.getElementById('rsvpForm');
-    const nameInput = document.getElementById('nameInput');
-    const guestList = document.getElementById('guestList');
+    // RSVP Multi-Step Flow
+    let rsvpData = {
+      name: '',
+      guestCount: 1,
+      phone: '',
+      verified: false,
+      paid: false
+    };
 
-    rsvpForm.addEventListener('submit', (e) => {
-      e.preventDefault();
+    // Get all step elements
+    const steps = {
+      step1: document.getElementById('step1'),
+      step2: document.getElementById('step2'),
+      step3: document.getElementById('step3'),
+      step4: document.getElementById('step4'),
+      step5: document.getElementById('step5'),
+      step6: document.getElementById('step6'),
+      step7: document.getElementById('step7')
+    };
+
+    // Get all input/button elements
+    const nameInput = document.getElementById('nameInput');
+    const nameBtn = document.getElementById('nameBtn');
+    const justMeBtn = document.getElementById('justMeBtn');
+    const plusOneBtn = document.getElementById('plusOneBtn');
+    const phoneInput = document.getElementById('phoneInput');
+    const phoneBtn = document.getElementById('phoneBtn');
+    const codeInput = document.getElementById('codeInput');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const resendCode = document.getElementById('resendCode');
+    const paidBtn = document.getElementById('paidBtn');
+    const letsGoBtn = document.getElementById('letsGoBtn');
+    const guestList = document.getElementById('guestList');
+    const ticketPrice = document.getElementById('ticketPrice');
+
+    // Helper function to show specific step
+    function showStep(stepNum) {
+      Object.values(steps).forEach(step => step.style.display = 'none');
+      steps[`step${stepNum}`].style.display = 'block';
+    }
+
+    // Step 1: Name input
+    nameBtn.addEventListener('click', () => {
       const name = nameInput.value.trim();
-      
       if (name) {
-        const li = document.createElement('li');
-        li.textContent = name;
-        guestList.appendChild(li);
+        rsvpData.name = name;
+        showStep(2);
+      }
+    });
+
+    // Step 2: Guest count selection
+    justMeBtn.addEventListener('click', () => {
+      rsvpData.guestCount = 1;
+      ticketPrice.textContent = '$125';
+      showStep(3);
+    });
+
+    plusOneBtn.addEventListener('click', () => {
+      rsvpData.guestCount = 2;
+      ticketPrice.textContent = '$250';
+      showStep(3);
+    });
+
+    // Step 3: Phone number input
+    phoneBtn.addEventListener('click', () => {
+      const phone = phoneInput.value.trim();
+      if (phone) {
+        rsvpData.phone = phone;
+        // In real implementation, this would call Twilio API to send SMS
+        console.log('Sending verification code to:', phone);
+        console.log('Demo code: 0000');
+        showStep(4);
+      }
+    });
+
+    // Step 4: Verification code
+    verifyBtn.addEventListener('click', () => {
+      const code = codeInput.value.trim();
+      // For demo, accept "0000" or any 4-digit code
+      if (code === '0000' || code.length === 4) {
+        rsvpData.verified = true;
+        showStep(5);
+      } else {
+        alert('Invalid code. For demo, use 0000');
+      }
+    });
+
+    // Resend code button
+    resendCode.addEventListener('click', () => {
+      console.log('Resending code to:', rsvpData.phone);
+      alert('Code resent! (Demo: use 0000)');
+    });
+
+    // Step 5: Payment confirmation
+    paidBtn.addEventListener('click', () => {
+      rsvpData.paid = true;
+      // In real implementation, this would trigger Twilio SMS with ticket
+      console.log('Sending ticket to:', rsvpData.phone);
+      showStep(6);
+    });
+
+    // Step 6: Confirmation -> Go to guest list
+    letsGoBtn.addEventListener('click', () => {
+      // Add guest to list with animation
+      const li = document.createElement('li');
+      const guestText = rsvpData.guestCount === 2 ? 
+        `${rsvpData.name} +1` : 
+        rsvpData.name;
+      li.textContent = guestText;
+      li.classList.add('guest-name-animated');
+      guestList.appendChild(li);
+      
+      // Show guest list
+      showStep(7);
+      
+      // Reset for next RSVP (optional)
+      // Could also keep data and disable re-RSVP
+    });
+
+    // Reset RSVP flow when modal is opened
+    navRSVP.addEventListener('click', () => {
+      // Check if there are guests - if yes, show list, otherwise show form
+      if (guestList.children.length > 0) {
+        showStep(7);
+      } else {
+        showStep(1);
+        // Clear inputs
         nameInput.value = '';
+        phoneInput.value = '';
+        codeInput.value = '';
       }
     });
   </script>
