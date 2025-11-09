@@ -1011,13 +1011,22 @@
         // Don't drag if clicking on interactive elements
         if (e.target.classList.contains('modal-close') || 
             e.target.classList.contains('rsvp-input') || 
-            e.target.classList.contains('rsvp-button')) {
+            e.target.classList.contains('rsvp-button') ||
+            e.target.classList.contains('rsvp-split-button') ||
+            e.target.classList.contains('edit-button') ||
+            e.target.classList.contains('edit-option-link') ||
+            e.target.closest('.edit-options')) {
           return;
         }
 
-        // Don't drag if clicking inside the content area
-        if (e.target.classList.contains('modal-content') || 
-            e.target.closest('.modal-content')) {
+        // Don't drag if clicking on text content (to allow scrolling)
+        const clickedOnText = e.target.tagName === 'P' || 
+                             e.target.tagName === 'INPUT' || 
+                             e.target.tagName === 'BUTTON' ||
+                             e.target.tagName === 'UL' ||
+                             e.target.tagName === 'LI';
+        
+        if (clickedOnText) {
           return;
         }
 
