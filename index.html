@@ -370,6 +370,43 @@
       opacity: 0.7;
     }
 
+    /* Edit options container */
+    .edit-options {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 0;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 0.3rem 0.5rem;
+      gap: 0.5rem;
+      z-index: 10;
+    }
+
+    .edit-options.active {
+      display: flex;
+    }
+
+    .edit-option-btn {
+      font-family: 'Nagbuloe', serif;
+      font-size: 0.7rem;
+      color: #ff6b35;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-transform: lowercase;
+      padding: 0.2rem 0.5rem;
+      white-space: nowrap;
+    }
+
+    .edit-option-btn:hover {
+      opacity: 0.7;
+    }
+
+    .guest-list-items li {
+      position: relative;
+    }
+
     /* Fixed hero content */
     .hero {
       position: fixed;
@@ -907,13 +944,10 @@
 
       <!-- Step 6: Confirmation -->
       <div class="rsvp-step" id="step6" style="display: none;">
-        <p style="color: #ffffff; font-size: 1.5rem; margin-bottom: 1rem; text-align: center; font-weight: bold;">
+        <p style="color: #ffffff; font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center; font-weight: bold;">
           you're in! stoked to have you for the night
         </p>
-        <p style="color: #ffffff; font-size: 1rem; margin-bottom: 1.5rem; text-align: center; line-height: 1.5;">
-          you should receive a text confirmation momentarily
-        </p>
-        <button class="rsvp-button" id="letsGoBtn">let's go</button>
+        <button class="rsvp-button" id="letsGoBtn">woo!</button>
       </div>
 
       <!-- Step 7: Guest List View -->
@@ -1153,26 +1187,67 @@
       nameSpan.textContent = guestText;
       nameSpan.classList.add('guest-name-animated');
       
+      // Create edit button container
+      const editContainer = document.createElement('div');
+      editContainer.style.position = 'relative';
+      
       // Create edit button
       const editBtn = document.createElement('button');
       editBtn.textContent = 'edit';
       editBtn.classList.add('edit-button');
-      editBtn.addEventListener('click', function() {
-        if (confirm(`Remove ${guestText} from the guest list?`)) {
-          li.remove();
-          // If no more guests, show the form again
-          if (guestList.children.length === 0) {
-            showStep(1);
-            nameInput.value = '';
-            phoneInput.value = '';
-            codeInput.value = '';
-          }
+      
+      // Create edit options pill
+      const editOptions = document.createElement('div');
+      editOptions.classList.add('edit-options');
+      
+      // Add +1 button
+      const addPlusOneBtn = document.createElement('button');
+      addPlusOneBtn.textContent = 'add +1';
+      addPlusOneBtn.classList.add('edit-option-btn');
+      addPlusOneBtn.addEventListener('click', function() {
+        // Check if already has +1
+        if (rsvpData.guestCount === 2) {
+          alert('You already have a +1!');
+          return;
+        }
+        // Update guest count and go to payment screen
+        rsvpData.guestCount = 2;
+        ticketPrice.textContent = '$250';
+        editOptions.classList.remove('active');
+        showStep(5); // Go to payment screen
+      });
+      
+      // Delete name button
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'delete name';
+      deleteBtn.classList.add('edit-option-btn');
+      deleteBtn.addEventListener('click', function() {
+        li.remove();
+        syncGuestLists();
+        // If no more guests, show the form again
+        if (guestList.children.length === 0) {
+          showStep(1);
+          nameInput.value = '';
+          phoneInput.value = '';
+          codeInput.value = '';
         }
       });
       
-      // Add name and edit button to list item
+      editOptions.appendChild(addPlusOneBtn);
+      editOptions.appendChild(deleteBtn);
+      
+      // Toggle edit options when edit is clicked
+      editBtn.addEventListener('click', function() {
+        editOptions.classList.toggle('active');
+      });
+      
+      // Add elements to edit container
+      editContainer.appendChild(editBtn);
+      editContainer.appendChild(editOptions);
+      
+      // Add name and edit container to list item
       li.appendChild(nameSpan);
-      li.appendChild(editBtn);
+      li.appendChild(editContainer);
       guestList.appendChild(li);
       
       // Sync guest list to step 1
