@@ -1214,9 +1214,13 @@
           editOptions.appendChild(deleteLink);
           
           // Toggle edit options when edit is clicked - replaces edit button
-          editBtn.addEventListener('click', function() {
+          editBtn.addEventListener('click', function(e) {
+            console.log('Edit button clicked!');
+            e.preventDefault();
+            e.stopPropagation();
             editBtn.style.display = 'none';
             editOptions.classList.add('active');
+            console.log('Options should be visible now');
           });
           
           // Add elements to edit container
@@ -1444,9 +1448,13 @@
       editOptions.appendChild(deleteLink);
       
       // Toggle edit options when edit is clicked - replaces edit button
-      editBtn.addEventListener('click', function() {
+      editBtn.addEventListener('click', function(e) {
+        console.log('Edit button clicked (new guest)!');
+        e.preventDefault();
+        e.stopPropagation();
         editBtn.style.display = 'none';
         editOptions.classList.add('active');
+        console.log('Options should be visible now (new guest)');
       });
       
       // Add elements to edit container
