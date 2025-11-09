@@ -1150,7 +1150,7 @@
           
           // Simple edit button - just triggers showing options
           const editBtn = document.createElement('span');
-          editBtn.innerHTML = '<button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.8rem;padding:0;">edit</button>';
+          editBtn.innerHTML = '<button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.8rem;padding:0;pointer-events:auto;z-index:9999;position:relative;">edit</button>';
           editBtn.querySelector('button').onclick = async function() {
             console.log('EDIT CLICKED - Starting...');
             // Replace button with options
@@ -1351,7 +1351,7 @@
       const editBtn = document.createElement('span');
       editBtn.style.opacity = '0';
       editBtn.style.transition = 'opacity 0.5s ease';
-      editBtn.innerHTML = '<button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.8rem;padding:0;">edit</button>';
+      editBtn.innerHTML = '<button style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-family:Nagbuloe;font-size:0.8rem;padding:0;pointer-events:auto;z-index:9999;position:relative;">edit</button>';
       editBtn.querySelector('button').onclick = async function() {
         console.log('NEW GUEST EDIT CLICKED');
         // Replace button with options
