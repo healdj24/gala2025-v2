@@ -342,6 +342,32 @@
     .guest-list-items li {
       padding: 0.5rem 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Edit button styling */
+    .edit-button {
+      font-family: 'Nagbuloe', serif;
+      font-size: 0.8rem;
+      color: #ffffff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      padding: 0;
+      text-transform: lowercase;
+    }
+
+    .edit-button.visible {
+      opacity: 1;
+    }
+
+    .edit-button:hover {
+      opacity: 0.7;
     }
 
     /* Fixed hero content */
@@ -866,7 +892,7 @@
           have you paid for your ticket yet?
         </p>
         <p style="color: #ffffff; font-size: 0.9rem; margin-bottom: 1rem; text-align: center;">
-          venmo <strong id="ticketPrice">$125</strong> to <strong>@maxheald</strong>
+          venmo <strong id="ticketPrice">$125</strong> to <a href="https://venmo.com/u/jedheald" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: bold;">@jedheald</a>
         </p>
         <p style="color: #ffffff; font-size: 0.8rem; margin-bottom: 1.5rem; text-align: center; font-style: italic;">
           *please only click the button below if you've already paid
@@ -1110,9 +1136,38 @@
       const guestText = rsvpData.guestCount === 2 ? 
         `${rsvpData.name} +1` : 
         rsvpData.name;
-      li.textContent = guestText;
-      li.classList.add('guest-name-animated');
+      
+      // Create name span
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = guestText;
+      nameSpan.classList.add('guest-name-animated');
+      
+      // Create edit button
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'edit';
+      editBtn.classList.add('edit-button');
+      editBtn.addEventListener('click', function() {
+        if (confirm(`Remove ${guestText} from the guest list?`)) {
+          li.remove();
+          // If no more guests, show the form again
+          if (guestList.children.length === 0) {
+            showStep(1);
+            nameInput.value = '';
+            phoneInput.value = '';
+            codeInput.value = '';
+          }
+        }
+      });
+      
+      // Add name and edit button to list item
+      li.appendChild(nameSpan);
+      li.appendChild(editBtn);
       guestList.appendChild(li);
+      
+      // Fade in edit button after 2 second animation
+      setTimeout(() => {
+        editBtn.classList.add('visible');
+      }, 2000);
       
       // Show guest list
       showStep(7);
