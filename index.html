@@ -861,6 +861,14 @@
       <div class="rsvp-step" id="step1" style="display: block;">
         <input type="text" class="rsvp-input" id="nameInput" placeholder="enter your name" required>
         <button class="rsvp-button" id="nameBtn">continue</button>
+        
+        <!-- Show guest list on first screen -->
+        <div class="guest-list" style="margin-top: 2rem;">
+          <h3 class="guest-list-title">guest list</h3>
+          <ul class="guest-list-items" id="guestListStep1">
+            <!-- Guest names will be mirrored here from step 7 -->
+          </ul>
+        </div>
       </div>
 
       <!-- Step 2: Choose Guest Count -->
@@ -891,11 +899,8 @@
         <p style="color: #ffffff; font-size: 1.1rem; margin-bottom: 1rem; text-align: center; line-height: 1.5;">
           have you paid for your ticket yet?
         </p>
-        <p style="color: #ffffff; font-size: 0.9rem; margin-bottom: 1rem; text-align: center;">
-          venmo <strong id="ticketPrice">$125</strong> to <a href="https://venmo.com/u/jedheald" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: bold;">@jedheald</a>
-        </p>
-        <p style="color: #ffffff; font-size: 0.8rem; margin-bottom: 1.5rem; text-align: center; font-style: italic;">
-          *please only click the button below if you've already paid
+        <p style="color: #ffffff; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">
+          if not, venmo <strong id="ticketPrice">$125</strong> to <a href="https://account.venmo.com/u/maxheald" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: bold;">@maxheald</a>
         </p>
         <button class="rsvp-button" id="paidBtn">i've paid</button>
       </div>
@@ -906,7 +911,7 @@
           you're in! stoked to have you for the night
         </p>
         <p style="color: #ffffff; font-size: 1rem; margin-bottom: 1.5rem; text-align: center; line-height: 1.5;">
-          you should receive a text confirmation momentarily. this will act as your ticket!
+          you should receive a text confirmation momentarily
         </p>
         <button class="rsvp-button" id="letsGoBtn">let's go</button>
       </div>
@@ -1061,7 +1066,13 @@
     const paidBtn = document.getElementById('paidBtn');
     const letsGoBtn = document.getElementById('letsGoBtn');
     const guestList = document.getElementById('guestList');
+    const guestListStep1 = document.getElementById('guestListStep1');
     const ticketPrice = document.getElementById('ticketPrice');
+
+    // Helper function to sync guest lists between step 1 and step 7
+    function syncGuestLists() {
+      guestListStep1.innerHTML = guestList.innerHTML;
+    }
 
     // Helper function to show specific step
     function showStep(stepNum) {
@@ -1164,9 +1175,14 @@
       li.appendChild(editBtn);
       guestList.appendChild(li);
       
+      // Sync guest list to step 1
+      syncGuestLists();
+      
       // Fade in edit button after 2 second animation
       setTimeout(() => {
         editBtn.classList.add('visible');
+        // Also sync after animation to get the visible edit button
+        syncGuestLists();
       }, 2000);
       
       // Show guest list
