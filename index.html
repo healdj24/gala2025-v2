@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+Yeah, did you use the local storage to track which emojis the current user has already reacted? Yeah, we'll use option 1 there. Let's do that.<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -25,19 +25,33 @@
       box-sizing: border-box;
     }
 
+    html {
+      background: #ffffff;
+      scroll-behavior: auto;
+      overscroll-behavior-y: none;
+      position: relative;
+    }
+
     body {
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       overflow-x: hidden;
+      background: #ffffff;
+      overscroll-behavior-y: none;
+      position: relative;
     }
 
     /* White section at top - scrolls up like peeling layer */
     .white-section {
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
       height: 100vh;
       background: #ffffff;
       z-index: 20;
+      transform: translateY(0);
     }
 
     /* Orange section below - fixed underneath */
@@ -46,15 +60,15 @@
       top: 0;
       left: 0;
       right: 0;
-      min-height: 100vh;
+      height: 100vh;
       background: #ff6b35;
       z-index: 1;
     }
 
-    /* Spacer to allow scrolling */
+    /* Spacer to allow scrolling through orange section and third section slide-up */
     .scroll-spacer {
       position: relative;
-      height: 200vh; /* Extended to allow third page - 100vh for orange section + 100vh for third section */
+      height: 400vh; /* Creates enough scroll space: 100vh orange + 200vh for third section slide-up */
       z-index: 0;
     }
 
@@ -71,38 +85,270 @@
       /* No transition - will be controlled directly by scroll */
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      gap: 2rem;
+      align-items: stretch;
+      justify-content: flex-start; /* Mobile: start from top so Details header is visible */
+      padding: 1.5rem 1rem; /* Mobile: reduced padding */
+      gap: 1.5rem;
+      overflow-y: hidden; /* Disabled until section is fully visible */
+      padding-top: 2rem; /* Ensure header is visible at top */
+      touch-action: none; /* Prevent touch scrolling when not fully visible */
+      pointer-events: auto; /* Allow clicks but not scrolling */
     }
 
-    .third-section-content {
-      font-family: 'Nagbuloe', serif;
-      font-weight: bold;
-      font-size: 0.94rem; /* Same as orange-blurb on mobile */
-      color: #ffffff;
-      text-align: center;
-      width: 92%; /* Same width as orange-blurb on mobile */
-      max-width: 90%;
-      line-height: 1.4;
-      padding: 0 1rem;
+    .third-section.scrollable {
+      overflow-y: auto; /* Enable scrolling only when fully visible */
+      touch-action: pan-y; /* Allow vertical scrolling when fully visible */
     }
 
     @media (min-width: 768px) {
-      .third-section-content {
-        font-size: 1.6rem; /* Slightly bigger than orange-blurb (1.4rem) for desktop since it's a full screen */
-        width: auto;
-        max-width: 70%; /* Centered and not too wide */
+      .third-section {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center; /* Desktop: center content */
+        padding: 2rem;
+        gap: 2rem;
+      }
+    }
+
+    /* Left column: Details */
+    .third-section-left {
+      width: 100%;
+      padding: 0; /* Mobile: remove padding, will add to inner elements */
+      border: none;
+      font-family: 'Nagbuloe', serif;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* Mobile: start from top */
+      gap: 1rem; /* Reduced from 1.5rem for tighter spacing */
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    @media (min-width: 768px) {
+      .third-section-left {
+        width: 50%;
+        padding: 2rem;
+        justify-content: center; /* Desktop: center content */
+      }
+    }
+
+    .party-details-header {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 1.5rem; /* A bit bigger as it's a header */
+      color: #ffffff;
+      margin: 0;
+      padding: 0 0.5rem; /* Mobile: add horizontal padding */
+    }
+
+    @media (min-width: 768px) {
+      .party-details-header {
+        font-size: 2rem;
+        padding: 0; /* Desktop: remove padding */
+      }
+    }
+
+    .party-details-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .party-details-list li {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 0.94rem;
+      color: #ffffff;
+      line-height: 1.5;
+      position: relative;
+      padding-left: 1.5rem;
+    }
+
+    .party-details-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      font-size: 1.2rem;
+    }
+
+    @media (min-width: 768px) {
+      .party-details-list li {
+        font-size: 1.2rem;
+      }
+    }
+
+    /* Details icons and text */
+    .details-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.735rem; /* Mobile: 30% smaller (1.05rem * 0.7) */
+      margin-bottom: 0.7rem; /* Mobile: 30% smaller (1rem * 0.7) */
+      text-align: left;
+      width: 100%;
+      padding: 0 0.5rem; /* Mobile: add horizontal padding */
+    }
+
+    @media (min-width: 768px) {
+      .details-icons {
+        padding: 0; /* Desktop: remove padding */
+        gap: 1.05rem; /* Keep reduced gap on desktop too */
+        margin-bottom: 1rem; /* Keep reduced margin on desktop */
+      }
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.525rem; /* Mobile: 30% smaller (0.75rem * 0.7) */
+      text-align: left;
+    }
+
+    .detail-icon {
+      font-size: 1.05rem; /* Mobile: 30% smaller (1.5rem * 0.7) */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.05rem; /* Mobile: 30% smaller */
+      height: 1.05rem; /* Mobile: 30% smaller */
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .detail-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    @media (min-width: 768px) {
+      .detail-icon {
+        font-size: 2rem;
+        width: 2rem;
+        height: 2rem;
+      }
+
+      .detail-item {
+        gap: 0.75rem; /* Desktop: original gap */
+      }
+    }
+
+    .detail-link {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 16px; /* Match input font size for consistency */
+      color: #ffffff;
+      text-decoration: underline;
+      transition: opacity 0.2s ease;
+    }
+
+    .detail-link:hover {
+      opacity: 0.8;
+    }
+
+    @media (min-width: 768px) {
+      .detail-link {
+        font-size: 1.2rem;
+      }
+    }
+
+    .detail-text {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 16px; /* Match input font size for consistency */
+      color: #ffffff;
+    }
+
+    @media (min-width: 768px) {
+      .detail-text {
+        font-size: 1.2rem;
+      }
+    }
+
+    .details-paragraph {
+      text-align: left;
+      width: 100%;
+      padding: 0 0.5rem; /* Mobile: add small horizontal padding */
+    }
+
+    .details-paragraph p {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 0.672rem; /* Mobile: 20% bigger (0.56rem * 1.2) */
+      color: #ffffff;
+      line-height: 1.4; /* Mobile: tighter line height */
+      margin: 0 0 0.56rem 0; /* Mobile: reduced margin */
+    }
+
+    .details-paragraph p:last-child {
+      margin-bottom: 0;
+    }
+
+    .details-paragraph a {
+      color: #ffffff;
+      text-decoration: underline;
+      transition: opacity 0.2s ease;
+    }
+
+    .details-paragraph a:hover {
+      opacity: 0.8;
+    }
+
+    @media (min-width: 768px) {
+      .details-paragraph {
+        padding: 0; /* Desktop: remove padding */
+      }
+      
+      .details-paragraph p {
+        font-size: 1.2rem; /* Desktop: larger text */
+        line-height: 1.6;
+        margin: 0 0 1rem 0;
+      }
+    }
+
+    /* Right column: RSVP form */
+    .third-section-right {
+      width: 95%; /* Mobile: wider, close to edges */
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* Mobile: start from top */
+      gap: 1.5rem;
+      padding: 1.5rem; /* Mobile: reduced padding */
+      border: 10px solid #ffffff;
+      max-height: none; /* Mobile: remove max-height restriction */
+      overflow-y: visible; /* Mobile: remove scroll */
+      margin: 0 auto; /* Mobile: center the container */
+    }
+
+    @media (max-width: 767px) {
+      .third-section-right {
+        gap: 1rem; /* 35% smaller: 1.5rem * 0.65 */
+        padding: 1rem; /* 35% smaller: 1.5rem * 0.65 */
+        border-width: 7px; /* 35% smaller: 10px * 0.65 */
+      }
+    }
+
+    @media (min-width: 768px) {
+      .third-section-right {
+        width: 40%;
+        padding: 2rem;
+        max-height: calc((100vh - 4rem) * 0.8);
+        overflow-y: auto;
+        overflow-x: visible; /* Allow picker to show horizontally */
+        margin-right: 6rem; /* Ensure space for play button (2rem + 60px + 2rem buffer) */
+        justify-content: center; /* Desktop: center content */
       }
     }
 
     /* RSVP button on third page */
     .third-page-rsvp {
-      padding: 0.4rem 0.9rem;
+      padding: 0.5rem 1.2rem; /* Increased padding to accommodate larger text */
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 1.5rem; /* Match party-details-header mobile size */
       color: #ffffff;
       background: #ff6b35;
       border: 2px solid #ffffff; /* White border on orange background */
@@ -112,6 +358,18 @@
       text-transform: uppercase;
       opacity: 0; /* Start invisible */
       transition: opacity 1s ease; /* Fade in over 1 second */
+      pointer-events: auto !important; /* Ensure button is always clickable */
+      position: relative;
+      z-index: 1000; /* High z-index to ensure it's on top */
+      align-self: flex-start; /* Align to top of right column */
+    }
+
+    @media (max-width: 767px) {
+      .third-page-rsvp {
+        padding: 0.325rem 0.78rem; /* 35% smaller */
+        font-size: 1.17rem; /* 20% bigger (0.975rem * 1.2) */
+        border-width: 1.3px; /* 35% smaller */
+      }
     }
 
     .third-page-rsvp.visible {
@@ -124,8 +382,74 @@
 
     @media (min-width: 768px) {
       .third-page-rsvp {
-        padding: 0.7rem 1.5rem;
-        font-size: 1.8rem;
+        padding: 0.8rem 2rem; /* Increased padding for desktop */
+        font-size: 2rem; /* Match party-details-header desktop size */
+      }
+    }
+
+    /* Guest list container - always visible */
+    .guest-list-container {
+      font-family: 'Nagbuloe', serif;
+      color: #ffffff;
+      width: 100%; /* Mobile: full width */
+      overflow: visible; /* Allow picker to show above */
+    }
+
+    @media (min-width: 768px) {
+      .guest-list-container {
+        width: auto; /* Desktop: auto width */
+        overflow: visible; /* Allow picker to show above */
+      }
+    }
+
+    .guest-list-header {
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #ffffff;
+      margin: 0 0 1rem 0;
+    }
+
+    @media (max-width: 767px) {
+      .guest-list-header {
+        font-size: 1.5rem; /* A bit bigger as it's a header */
+        margin: 0 0 0.65rem 0; /* 35% smaller */
+      }
+    }
+
+    @media (min-width: 768px) {
+      .guest-list-header {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* RSVP form container */
+    .rsvp-form-container {
+      font-family: 'Nagbuloe', serif;
+      color: #ffffff;
+      max-height: calc(100vh - 20rem);
+      overflow-y: auto;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    @media (max-width: 767px) {
+      .rsvp-form-container {
+        max-height: calc(100vh - 13rem); /* 35% smaller adjustment */
+      }
+    }
+
+    .rsvp-content {
+      font-family: 'Nagbuloe', serif;
+      font-size: 1rem;
+      color: #ffffff;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 767px) {
+      .rsvp-content {
+        font-size: 0.65rem; /* 35% smaller: 1rem * 0.65 */
+        line-height: 1.4; /* Slightly tighter */
       }
     }
 
@@ -169,18 +493,6 @@
       }
     }
 
-    /* RSVP modal sizing */
-    .modal.rsvp-modal {
-      width: 79.2%; /* 10% wider than 72% on mobile */
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    @media (min-width: 768px) {
-      .modal.rsvp-modal {
-        width: 33%; /* 10% wider than 30% on desktop */
-      }
-    }
 
     /* Modal header with close button */
     .modal-header {
@@ -261,6 +573,39 @@
       margin-bottom: 2rem;
     }
 
+    @media (max-width: 767px) {
+      .rsvp-form {
+        margin-bottom: 1.3rem; /* 35% smaller: 2rem * 0.65 */
+      }
+
+      /* Reduce spacing in RSVP steps */
+      .rsvp-step input#emailInput {
+        margin-top: 0.65rem !important; /* 35% smaller: 1rem * 0.65 */
+      }
+
+      .rsvp-step > div[style*="display: flex"] {
+        gap: 0.325rem !important; /* 35% smaller: 0.5rem * 0.65 */
+        margin-top: 0.65rem !important; /* 35% smaller */
+        margin-bottom: 0.65rem !important; /* 35% smaller */
+      }
+
+      /* Reduce step 3 text sizes - override inline styles */
+      .rsvp-step p {
+        font-size: 0.715rem !important; /* 35% smaller: 1.1rem * 0.65 */
+        margin-bottom: 0.65rem !important; /* 35% smaller */
+        line-height: 1.3 !important;
+      }
+
+      .rsvp-step p:has(strong#ticketPrice) {
+        font-size: 0.585rem !important; /* 35% smaller: 0.9rem * 0.65 */
+        margin-bottom: 0.975rem !important; /* 35% smaller: 1.5rem * 0.65 */
+      }
+
+      .rsvp-step a#venmoPaymentLink {
+        margin-bottom: 0.65rem !important; /* 35% smaller */
+      }
+    }
+
     .rsvp-input {
       width: 100%;
       padding: 0.68rem 1rem; /* 10% skinnier vertically (0.75 * 0.9) */
@@ -270,7 +615,16 @@
       border-radius: 25px;
       background: #ffffff;
       color: #000000;
-      margin-bottom: 1rem;
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 767px) {
+      .rsvp-input {
+        padding: 0.442rem 0.65rem; /* 35% smaller */
+        font-size: 16px; /* Minimum 16px to prevent auto-zoom on mobile */
+        border-width: 1.3px; /* 35% smaller */
+        border-radius: 16px; /* 35% smaller: 25px * 0.65 */
+      }
     }
 
     .rsvp-button {
@@ -285,6 +639,15 @@
       color: #ff6b35;
       cursor: pointer;
       transition: opacity 0.2s ease;
+    }
+
+    @media (max-width: 767px) {
+      .rsvp-button {
+        padding: 0.442rem 0.65rem; /* 35% smaller */
+        font-size: 16px; /* Match input font size for consistency */
+        border-width: 1.3px; /* 35% smaller */
+        border-radius: 16px; /* 35% smaller: 25px * 0.65 */
+      }
     }
 
     .rsvp-button:hover {
@@ -303,11 +666,56 @@
       background: #ff6b35;
       color: #ffffff;
       cursor: pointer;
-      transition: opacity 0.2s ease;
+      transition: all 0.2s ease;
       text-transform: lowercase;
     }
 
+    @media (max-width: 767px) {
+      .rsvp-split-button {
+        padding: 0.442rem 0.65rem; /* 35% smaller */
+        font-size: 16px; /* Match input font size for consistency */
+        border-width: 1.3px; /* 35% smaller */
+        border-radius: 16px; /* 35% smaller: 25px * 0.65 */
+      }
+    }
+
     .rsvp-split-button:hover {
+      opacity: 0.8;
+    }
+
+    .rsvp-split-button.selected {
+      background: #ffffff;
+      color: #ff6b35;
+    }
+
+    /* Venmo payment button - matches rsvp-button style */
+    .venmo-button {
+      width: 100%;
+      padding: 0.68rem 1rem; /* Same as rsvp-button */
+      font-family: 'Nagbuloe', serif;
+      font-weight: bold;
+      font-size: 1rem;
+      border: 2px solid #ffffff;
+      border-radius: 25px;
+      background: #3D95CE; /* Venmo blue instead of white */
+      color: #ffffff;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      transition: opacity 0.2s ease;
+    }
+
+    @media (max-width: 767px) {
+      .venmo-button {
+        padding: 0.442rem 0.65rem; /* 35% smaller */
+        font-size: 0.65rem; /* 35% smaller: 1rem * 0.65 */
+        border-width: 1.3px; /* 35% smaller */
+        border-radius: 16px; /* 35% smaller: 25px * 0.65 */
+      }
+    }
+
+    .venmo-button:hover {
       opacity: 0.8;
     }
 
@@ -334,10 +742,17 @@
     .guest-list-title {
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       color: #ffffff;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
       text-align: center; /* Center to match the buttons */
+    }
+
+    @media (max-width: 767px) {
+      .guest-list-title {
+        font-size: 0.975rem; /* 35% smaller: 1.5rem * 0.65 */
+        margin-bottom: 0.65rem; /* 35% smaller */
+      }
     }
 
     .guest-list-items {
@@ -347,17 +762,45 @@
     }
 
     .guest-list-items li {
-      padding: 0.5rem 0;
+      padding: 0.75rem 0; /* Increased padding to accommodate larger badges (2em circle) */
       border-bottom: 1px solid rgba(255, 255, 255, 0.3);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      white-space: nowrap; /* Prevent name from wrapping to two rows */
+      overflow-x: hidden; /* Hide overflow emojis horizontally */
+      overflow-y: visible; /* Allow picker to show above */
+      font-size: 1.2rem; /* Match guest-list-header size */
+      min-width: 0; /* Allow flex items to shrink */
+    }
+    
+    /* Ensure name and reactions stay on one line */
+    .guest-list-items li > span:first-child,
+    .guest-list-items li > .guest-reactions {
+      flex-shrink: 0; /* Don't shrink name or reactions */
+    }
+    
+    .guest-list-items li > .guest-reactions {
+      min-width: 0; /* Allow reactions to be cut off */
+    }
+
+    @media (max-width: 767px) {
+      .guest-list-items li {
+        padding: 0.49rem 0; /* Increased to accommodate larger badges (0.75rem * 0.65) */
+        font-size: 16px; /* Match input font size for consistency */
+      }
+    }
+
+    @media (min-width: 768px) {
+      .guest-list-items li {
+        font-size: 1.5rem; /* Match guest-list-header desktop size */
+      }
     }
 
     /* Edit button styling */
     .edit-button {
       font-family: 'Nagbuloe', serif;
-      font-size: 0.8rem;
+      font-size: 1.2rem; /* Match guest-list-header size */
       color: #ffffff;
       background: none;
       border: none;
@@ -368,6 +811,18 @@
       padding: 0;
       text-transform: lowercase;
       pointer-events: auto; /* Ensure clickable */
+    }
+
+    @media (max-width: 767px) {
+      .edit-button {
+        font-size: 0.78rem; /* 35% smaller: 1.2rem * 0.65 */
+      }
+    }
+
+    @media (min-width: 768px) {
+      .edit-button {
+        font-size: 1.5rem; /* Match guest-list-header desktop size */
+      }
     }
 
     .edit-button.visible {
@@ -396,7 +851,7 @@
 
     .edit-option-link {
       font-family: 'Nagbuloe', serif;
-      font-size: 0.7rem;
+      font-size: 1.2rem; /* Match guest-list-header size */
       color: #ffffff;
       background: none;
       border: none;
@@ -406,18 +861,202 @@
       text-transform: lowercase;
     }
 
+    @media (max-width: 767px) {
+      .edit-option-link {
+        font-size: 0.78rem; /* 35% smaller: 1.2rem * 0.65 */
+      }
+    }
+
+    @media (min-width: 768px) {
+      .edit-option-link {
+        font-size: 1.5rem; /* Match guest-list-header desktop size */
+      }
+    }
+
     .edit-option-link:hover {
       opacity: 0.7;
     }
 
     .edit-separator {
       color: #ffffff;
-      font-size: 0.7rem;
+      font-size: 1.2rem; /* Match guest-list-header size */
       opacity: 0.6;
+    }
+
+    @media (max-width: 767px) {
+      .edit-separator {
+        font-size: 0.78rem; /* 35% smaller: 1.2rem * 0.65 */
+      }
+    }
+
+    @media (min-width: 768px) {
+      .edit-separator {
+        font-size: 1.5rem; /* Match guest-list-header desktop size */
+      }
     }
 
     .guest-list-items li {
       position: relative;
+    }
+
+    /* Emoji reactions styling */
+    .guest-reactions {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-left: 0.5rem;
+      flex-wrap: wrap; /* Allow wrapping if needed */
+      overflow: visible; /* Show badges that extend outside */
+      flex-shrink: 0; /* Don't shrink reactions container */
+    }
+
+    @media (max-width: 767px) {
+      .guest-reactions {
+        gap: 0.2rem; /* Smaller gap on mobile */
+        margin-left: 0.325rem;
+        overflow: visible; /* Show badges on mobile */
+      }
+    }
+
+    .emoji-bubble {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border-radius: 0;
+      width: auto;
+      height: auto;
+      padding: 0;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      font-size: 1.2em; /* 20% bigger: 1em * 1.2 */
+      line-height: 1;
+    }
+
+    .emoji-bubble:hover {
+      transform: scale(1.1);
+    }
+
+    .emoji-bubble .emoji {
+      font-size: 1em; /* Full size emoji */
+      line-height: 1;
+    }
+
+    .emoji-count-badge {
+      position: absolute;
+      top: -0.5em; /* Position further onto top-right of emoji */
+      right: -0.5em;
+      background: #ffffff; /* White circle */
+      color: #ff6b35; /* Orange number */
+      border-radius: 50%;
+      width: 2em; /* Larger circle - plenty of room for numbers */
+      height: 2em; /* Larger circle - plenty of room for numbers */
+      min-width: 2em; /* Ensure minimum size */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55em; /* Smaller number size to fit comfortably */
+      font-weight: bold;
+      padding: 0; /* No padding - flexbox handles centering */
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1;
+      box-sizing: border-box;
+      text-align: center;
+      /* Ensure the number doesn't overflow */
+      overflow: visible;
+    }
+
+    .emoji-count-badge.hide {
+      display: none; /* Hide when count is 1 */
+    }
+
+    /* Emoji picker popup */
+    .emoji-picker {
+      position: fixed; /* Use fixed to avoid overflow clipping */
+      background: #ff6b35;
+      border: 2px solid #ffffff;
+      border-radius: 2rem; /* Pill shape */
+      padding: 0.9rem 1.08rem; /* 20% bigger (0.75rem * 1.2, 0.9rem * 1.2) to accommodate top badges */
+      display: none !important;
+      flex-wrap: wrap;
+      gap: 0.48rem; /* 20% bigger (0.4rem * 1.2) */
+      z-index: 10000; /* Very high z-index to ensure it's on top */
+      min-width: 9.6rem; /* 20% bigger (8rem * 1.2) */
+      max-width: 14.4rem; /* 20% bigger (12rem * 1.2) */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      pointer-events: auto;
+      transform: translateZ(0); /* Force hardware acceleration and create new stacking context */
+      overflow: visible; /* Ensure badges aren't clipped */
+    }
+
+    .emoji-picker.active {
+      display: flex !important;
+    }
+
+    @media (max-width: 767px) {
+      .emoji-picker {
+        padding: 0.6rem 0.78rem; /* 20% bigger (0.5rem * 1.2, 0.65rem * 1.2) */
+        gap: 0.312rem; /* 20% bigger (0.26rem * 1.2) */
+        min-width: 7.2rem; /* 20% bigger (6rem * 1.2) */
+        max-width: 12rem; /* 20% bigger (10rem * 1.2) */
+        border-width: 1.3px;
+        overflow: visible; /* Ensure badges aren't clipped on mobile */
+      }
+    }
+
+    .emoji-picker-emoji {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent; /* Remove white background */
+      border-radius: 0; /* Remove circle */
+      width: auto; /* Auto width */
+      height: auto; /* Auto height */
+      padding: 0; /* Remove padding */
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      font-size: 1.2em; /* Same size as name emojis - 20% bigger */
+      line-height: 1;
+      box-sizing: border-box;
+    }
+
+    /* Dim clicked emojis in picker */
+    .emoji-picker-emoji.clicked {
+      opacity: 0.5; /* Dim clicked emojis */
+      cursor: default; /* Show it's not clickable */
+      pointer-events: none; /* Prevent clicking */
+    }
+
+    .emoji-picker-emoji:hover:not(.clicked) {
+      transform: scale(1.1);
+    }
+
+    .emoji-picker-emoji .emoji {
+      font-size: 1em; /* Full size emoji */
+      line-height: 1;
+    }
+
+    /* Guest name clickable area */
+    .guest-name-clickable {
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap; /* Prevent name from wrapping */
+      flex-shrink: 0; /* Don't shrink the name */
+    }
+
+    .guest-name-clickable:active,
+    .guest-name-clickable:focus,
+    .guest-name-clickable:visited {
+      color: inherit;
+      text-decoration: none;
+      outline: none;
     }
 
     /* Fixed hero content */
@@ -485,19 +1124,26 @@
     /* Orange section blurb */
     .orange-blurb {
       position: absolute;
-      top: 61%; /* Mobile: 12% higher (73% - 12%) */
+      bottom: 5%; /* Mobile: position from bottom to ensure it's always visible below title */
       left: 50%;
       transform: translateX(-50%);
       font-family: 'Nagbuloe', serif;
       font-weight: bold;
-      font-size: 0.94rem; /* Mobile: doubled from 0.47rem */
+      font-size: 1.2rem; /* A bit bigger for better readability */
       color: #000; /* Start as black */
       text-align: center;
       width: 92%; /* Mobile: force container to be wide, close to screen edges */
-      line-height: 1.3;
+      line-height: 1.4; /* Mobile: slightly increased for better readability */
       z-index: 5;
       transition: color 0.3s ease;
       padding: 0 1rem; /* Add some padding so text doesn't touch edges */
+    }
+
+    @media (max-width: 767px) {
+      .orange-blurb {
+        top: auto; /* Override top on mobile */
+        bottom: 5%; /* Position from bottom on mobile */
+      }
     }
 
     .orange-blurb.on-orange {
@@ -514,13 +1160,86 @@
       }
     }
 
-    /* Play button styling */
-    .play-button {
+    /* Jukebox container */
+    .jukebox-container {
       position: fixed;
-      top: 2rem;
-      right: 2rem;
-      width: 60px;
-      height: 60px;
+      top: 1rem;
+      right: 1rem;
+      width: 2.4rem; /* Mobile: 20% bigger (2rem * 1.2) - about 38px */
+      height: 2.4rem; /* Mobile: 20% bigger (2rem * 1.2) - about 38px */
+      z-index: 1000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+    }
+
+    @media (min-width: 768px) {
+      .jukebox-container {
+        top: 2rem;
+        right: 2rem;
+        width: 3.6rem; /* Desktop: keep larger size - about 58px */
+        height: 3.6rem;
+      }
+    }
+
+    .jukebox-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      transform-origin: center center;
+      pointer-events: auto;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      -webkit-backface-visibility: hidden;
+      -moz-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-transform: translateZ(0);
+      -moz-transform: translateZ(0);
+      transform: translateZ(0);
+      will-change: transform;
+    }
+
+    @media (max-width: 767px) {
+      .jukebox-image {
+        /* Use smooth rendering on mobile to fix pixelation */
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: auto;
+        image-rendering: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    }
+
+    .jukebox-image.twitch {
+      animation: jukeboxTwitch 0.5s ease-in-out forwards;
+    }
+
+    @keyframes jukeboxTwitch {
+      0% { transform: rotate(0deg); opacity: 1; }
+      100% { transform: rotate(70deg); opacity: 0; }
+    }
+
+    .jukebox-image.activated {
+      opacity: 0;
+      pointer-events: none;
+      display: none;
+    }
+
+    /* Jukebox maintains original color on orange background */
+    /* Removed color inversion to keep original jukebox colors */
+
+    /* Play button styling - now behind jukebox */
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 1.8rem; /* Mobile: 20% bigger (1.5rem * 1.2) - about 29px */
+      height: 1.8rem; /* Mobile: 20% bigger (1.5rem * 1.2) - about 29px */
       border-radius: 50%;
       background-color: #000;
       border: none;
@@ -529,7 +1248,35 @@
       align-items: center;
       justify-content: center;
       transition: transform 0.2s ease, background-color 0.3s ease;
-      z-index: 1000;
+      z-index: 1001;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .play-button {
+        width: 2.7rem; /* Desktop: keep larger size - about 43px */
+        height: 2.7rem;
+      }
+    }
+
+    .play-button.revealed {
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+      animation: playButtonAppear 0.3s ease-out forwards;
+    }
+
+    @keyframes playButtonAppear {
+      0% { 
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+      }
+      100% { 
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
     }
 
     .play-button.on-orange {
@@ -537,21 +1284,30 @@
     }
 
     .play-button:hover {
-      transform: scale(1.1);
+      transform: translate(-50%, -50%) scale(1.1);
     }
 
     .play-button:active {
-      transform: scale(0.95);
+      transform: translate(-50%, -50%) scale(0.95);
     }
 
     /* Play triangle */
     .play-button .play-icon {
       width: 0;
       height: 0;
-      border-left: 18px solid #ffffff;
-      border-top: 12px solid transparent;
-      border-bottom: 12px solid transparent;
-      margin-left: 4px;
+      border-left: 0.538rem solid #ffffff; /* Mobile: 20% bigger (0.448rem * 1.2) */
+      border-top: 0.353rem solid transparent; /* Mobile: 20% bigger (0.294rem * 1.2) */
+      border-bottom: 0.353rem solid transparent; /* Mobile: 20% bigger (0.294rem * 1.2) */
+      margin-left: 0.154rem; /* Mobile: 20% bigger (0.128rem * 1.2) */
+    }
+
+    @media (min-width: 768px) {
+      .play-button .play-icon {
+        border-left: 0.806rem solid #ffffff; /* Desktop: 20% smaller */
+        border-top: 0.538rem solid transparent; /* Desktop: 20% smaller */
+        border-bottom: 0.538rem solid transparent; /* Desktop: 20% smaller */
+        margin-left: 0.23rem; /* Desktop: 20% smaller */
+      }
     }
 
     .play-button.on-orange .play-icon {
@@ -561,8 +1317,8 @@
     /* Pause icon */
     .play-button .pause-icon {
       display: none;
-      width: 20px;
-      height: 24px;
+      width: 0.768rem; /* Mobile: 20% bigger (0.64rem * 1.2) */
+      height: 0.922rem; /* Mobile: 20% bigger (0.768rem * 1.2) */
       position: relative;
     }
 
@@ -570,9 +1326,22 @@
     .play-button .pause-icon::after {
       content: '';
       position: absolute;
-      width: 6px;
-      height: 24px;
+      width: 0.23rem; /* Mobile: 20% bigger (0.192rem * 1.2) */
+      height: 0.922rem; /* Mobile: 20% bigger (0.768rem * 1.2) */
       background-color: #ffffff;
+    }
+
+    @media (min-width: 768px) {
+      .play-button .pause-icon {
+        width: 1.152rem; /* Desktop: 20% smaller */
+        height: 1.392rem; /* Desktop: 20% smaller */
+      }
+
+      .play-button .pause-icon::before,
+      .play-button .pause-icon::after {
+        width: 0.336rem; /* Desktop: 20% smaller */
+        height: 1.392rem; /* Desktop: 20% smaller */
+      }
     }
 
     .play-button.on-orange .pause-icon::before,
@@ -598,11 +1367,14 @@
   </style>
 </head>
 <body>
-  <!-- Play button -->
-  <button class="play-button" id="playButton">
-    <div class="play-icon"></div>
-    <div class="pause-icon"></div>
-  </button>
+  <!-- Jukebox button -->
+  <div class="jukebox-container" id="jukeboxContainer">
+    <img src="jukebox.png" alt="Jukebox" class="jukebox-image" id="jukeboxImage">
+    <button class="play-button" id="playButton">
+      <div class="play-icon"></div>
+      <div class="pause-icon"></div>
+    </button>
+  </div>
 
   <!-- Hidden YouTube player -->
   <div id="player" style="display: none;"></div>
@@ -630,10 +1402,129 @@
 
   <!-- Third orange section -->
   <div class="third-section" id="thirdSection">
-    <div class="third-section-content">
-      Join us for an unforgettable evening of celebration as we ring in the New Year together. Expect incredible music, delicious food and drinks, and the best company you could ask for. This year's gala will feature live performances, a midnight champagne toast, and dancing until dawn. Dress to impress and come ready to make memories that will last a lifetime. We can't wait to celebrate with you!
+    <!-- Left column: Details -->
+    <div class="third-section-left">
+      <h2 class="party-details-header">Details</h2>
+      
+      <!-- Icons section -->
+      <div class="details-icons">
+        <div class="detail-item">
+          <span class="detail-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="white"/>
+            </svg>
+          </span>
+          <a href="https://www.greenpointloft.com" target="_blank" class="detail-link">The Greenpoint Loft</a>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="7" width="14" height="10" rx="1" fill="white"/>
+              <path d="M9 9h6M9 11h6M9 13h6M9 15h6" stroke="#ff6b35" stroke-width="1" stroke-linecap="round"/>
+              <circle cx="5" cy="9.5" r="0.6" fill="#ff6b35"/>
+              <circle cx="5" cy="12" r="0.6" fill="#ff6b35"/>
+              <circle cx="5" cy="14.5" r="0.6" fill="#ff6b35"/>
+              <circle cx="19" cy="9.5" r="0.6" fill="#ff6b35"/>
+              <circle cx="19" cy="12" r="0.6" fill="#ff6b35"/>
+              <circle cx="19" cy="14.5" r="0.6" fill="#ff6b35"/>
+            </svg>
+          </span>
+          <span class="detail-text">early birds! $125 before Dec. 10th</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="6.5" cy="9" r="2" fill="white"/>
+              <path d="M2 19c0-2 1.5-3.5 3.5-3.5s3.5 1.5 3.5 3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+              <circle cx="17.5" cy="9" r="2" fill="white"/>
+              <path d="M13 19c0-2 1.5-3.5 3.5-3.5s3.5 1.5 3.5 3.5" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+              <path d="M6.5 11l2.5-1.5M17.5 11l-2.5-1.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M5 7l1 2M19 7l-1 2" stroke="white" stroke-width="1" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="detail-text" id="spotsLeft">(<span id="rsvpCount">0</span>/200) spots left</span>
+        </div>
+      </div>
+      
+      <!-- Paragraph text -->
+      <div class="details-paragraph">
+        <p>From the windows, to the walls: it's time to drop the ball. We're gearing up for a third annual New Year's Gala, and would love to have you there.</p>
+        <p>What can you expect? The same high quality food and cocktails (open bar all night), two sets of live music from talented friends, a bigger venue (with a roof deck over the east river!), and a chance to meet new people. Yes, it's still black tie.</p>
+        <p>As a reminder, nobody makes money on this--everything goes to offset the venue, drinks, small plates, and music. We hope ticket price won't be a barrier for you, but if it is, please reach out at 603-494-0576! We want to see you there.</p>
+        <p>Lastly, as always, invite your friends! The whole point of this is to combine crowds, and it's more fun with them there.</p>
+        <p>See you NYE.</p>
+        <p>If you want to check out the venue, link here: <a href="https://www.instagram.com/greenpoint_loft/" target="_blank" style="color: #ffffff; text-decoration: underline;">https://www.instagram.com/greenpoint_loft/</a></p>
+      </div>
     </div>
-    <button class="third-page-rsvp" id="thirdPageRSVP">RSVP</button>
+    
+    <!-- Right column: RSVP form -->
+    <div class="third-section-right">
+      <button class="third-page-rsvp" id="thirdPageRSVP">RSVP</button>
+      
+      <!-- Guest list - always visible -->
+      <div class="guest-list-container" id="guestListContainer">
+        <h3 class="guest-list-header">Guests</h3>
+        <ul class="guest-list-items" id="guestListRight">
+          <!-- Guest names will be added here -->
+        </ul>
+      </div>
+      
+      <!-- RSVP form - hidden by default -->
+      <div class="rsvp-form-container" id="rsvpFormContainer" style="display: none;">
+        <div class="rsvp-content" id="rsvpContent">
+          
+          <!-- Step 1: Enter Name, Email, and Choose Guest Count -->
+          <div class="rsvp-step" id="step1" style="display: block;">
+            <input type="text" class="rsvp-input" id="nameInput" placeholder="your name" required>
+            
+            <input type="email" class="rsvp-input" id="emailInput" placeholder="your email" required style="margin-top: 1rem;">
+            
+            <!-- Guest count buttons -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; margin-top: 1rem;">
+              <button class="rsvp-split-button" id="justMeBtn">just me</button>
+              <button class="rsvp-split-button" id="plusOneBtn">plus one</button>
+            </div>
+            
+            <button class="rsvp-button" id="nameBtn">continue</button>
+          </div>
+
+          <!-- Step 2: Enter Email (deprecated - keeping for backward compatibility) -->
+          <div class="rsvp-step" id="step2" style="display: none;">
+            <input type="email" class="rsvp-input" id="emailInput2" placeholder="your email" required>
+            <button class="rsvp-button" id="emailBtn">continue</button>
+          </div>
+
+          <!-- Step 3: Payment Confirmation -->
+          <div class="rsvp-step" id="step3" style="display: none;">
+            <p style="color: #ffffff; font-size: 1.1rem; margin-bottom: 1rem; text-align: center; line-height: 1.5;">
+              have you paid for your ticket yet?
+            </p>
+            <p style="color: #ffffff; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">
+              if not, send <strong id="ticketPrice">$125</strong> via Venmo:
+            </p>
+            <a href="https://account.venmo.com/payment-link?amount=125&note=for%20the%20gala!&recipients=maxheald&txn=pay" 
+               target="_blank" 
+               class="venmo-button" 
+               id="venmoPaymentLink"
+               style="display: block; text-align: center; margin-bottom: 1rem;">
+              venmo max
+            </a>
+            <button class="rsvp-button" id="paidBtn">i've paid</button>
+          </div>
+
+          <!-- Step 4: Guest List View -->
+          <div class="rsvp-step" id="step4" style="display: none;">
+            <h3 class="guest-list-title">guest list</h3>
+            <ul class="guest-list-items" id="guestList">
+              <!-- Guest names will be added here -->
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Load YouTube IFrame API -->
@@ -643,37 +1534,66 @@
     // YouTube Player for "Bad Decisions" by The Strokes
     let player;
     let isPlaying = false;
+    let playerReady = false;
+    let youtubeActivated = false;
 
     function onYouTubeIframeAPIReady() {
-      player = new YT.Player('player', {
-        height: '0',
-        width: '0',
-        videoId: '5fbZTnZDvPA', // "Bad Decisions" by The Strokes (Official Audio)
-        playerVars: {
-          autoplay: 0,
-          controls: 0,
-          disablekb: 1,
-          fs: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          enablejsapi: 1
-        },
-        events: {
-          'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange,
-          'onError': onPlayerError
-        }
+      // Don't create player immediately - wait for jukebox click
+      console.log('YouTube API ready, waiting for jukebox activation...');
+    }
+
+    function activateYouTube() {
+      if (player && youtubeActivated) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve) => {
+        console.log('Activating YouTube player...');
+        player = new YT.Player('player', {
+          height: '0',
+          width: '0',
+          videoId: '5fbZTnZDvPA', // "Bad Decisions" by The Strokes (Official Audio)
+          playerVars: {
+            autoplay: 0,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            modestbranding: 1,
+            playsinline: 1,
+            enablejsapi: 1
+          },
+          events: {
+            'onReady': function(event) {
+              playerReady = true;
+              youtubeActivated = true;
+              console.log('YouTube player ready!');
+              
+              // Pre-load/cue the video so it's ready to play immediately
+              // This ensures the first play button click works
+              try {
+                player.cueVideoById('5fbZTnZDvPA');
+                console.log('Video cued and ready to play');
+              } catch (error) {
+                console.error('Error cueing video:', error);
+              }
+              
+              // Add play button listener once ready
+              const playBtn = document.getElementById('playButton');
+              if (playBtn) {
+                playBtn.addEventListener('click', togglePlay, { once: false });
+              }
+              resolve();
+            },
+            'onStateChange': onPlayerStateChange,
+            'onError': onPlayerError
+          }
+        });
       });
     }
 
     function onPlayerError(event) {
       console.error('YouTube Player Error:', event.data);
       alert('Unable to play this song. Error code: ' + event.data);
-    }
-
-    function onPlayerReady(event) {
-      // Player is ready
-      document.getElementById('playButton').addEventListener('click', togglePlay);
     }
 
     function onPlayerStateChange(event) {
@@ -685,7 +1605,7 @@
     }
 
     function togglePlay() {
-      if (!player || !player.playVideo) {
+      if (!player || !playerReady) {
         console.error('Player not ready yet');
         return;
       }
@@ -693,40 +1613,99 @@
       if (isPlaying) {
         player.pauseVideo();
         isPlaying = false;
-        document.getElementById('playButton').classList.remove('playing');
+        const playBtn = document.getElementById('playButton');
+        if (playBtn) {
+          playBtn.classList.remove('playing');
+        }
         stopMusicSync(); // Stop text flicker when music pauses
       } else {
+        // Check if video is loaded and ready
+        const playerState = player.getPlayerState();
+        if (playerState === YT.PlayerState.UNSTARTED || playerState === YT.PlayerState.CUED) {
+          // Video is ready to play - proceed with play
+          console.log('Video ready, starting playback...');
+        } else if (playerState === YT.PlayerState.BUFFERING) {
+          console.log('Video buffering, waiting...');
+          // Wait a bit for buffering
+          setTimeout(() => {
+            player.playVideo();
+          }, 100);
+          return;
+        }
+        
         // Optimistic UI update
         isPlaying = true;
-        document.getElementById('playButton').classList.add('playing');
+        const playBtn = document.getElementById('playButton');
+        if (playBtn) {
+          playBtn.classList.add('playing');
+        }
         startMusicSync(); // Start text flicker synced to beat
         
         // Mobile-optimized playback: Start muted, then unmute after play succeeds
         player.mute(); // Mute first to satisfy mobile autoplay policies
         
-        const playPromise = player.playVideo();
-        
-        // Handle promise-based playback (modern browsers)
-        if (playPromise !== undefined && playPromise.then) {
-          playPromise.then(() => {
-            // Play started successfully, now unmute
+        try {
+          player.playVideo();
+          
+          // Unmute after a short delay to ensure play started
+          setTimeout(() => {
+            try {
+              player.unMute();
+              player.setVolume(100);
+              console.log('Playing video with audio...');
+            } catch (error) {
+              console.error('Error unmuting:', error);
+            }
+          }, 100);
+        } catch (error) {
+          console.error('Error playing video:', error);
+          // Try to unmute anyway
+          try {
             player.unMute();
             player.setVolume(100);
-            console.log('Playing video with audio...');
-          }).catch((error) => {
-            console.error('Play failed:', error);
-            // Even if promise fails, try to unmute anyway
-            player.unMute();
-            player.setVolume(100);
-          });
-        } else {
-          // Fallback for older browsers - unmute immediately
-          player.unMute();
-          player.setVolume(100);
+          } catch (e) {
+            console.error('Error unmuting:', e);
+          }
         }
         
         console.log('Play initiated...');
       }
+    }
+
+    // Jukebox click handler
+    const jukeboxImage = document.getElementById('jukeboxImage');
+    const playButton = document.getElementById('playButton');
+    
+    if (jukeboxImage) {
+      jukeboxImage.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!youtubeActivated) {
+          // First click: Activate YouTube and rotate jukebox
+          console.log('Jukebox clicked - activating YouTube...');
+          jukeboxImage.classList.add('twitch');
+          
+          try {
+            await activateYouTube();
+            
+            // After rotation animation completes, hide jukebox and reveal play button
+            setTimeout(() => {
+              jukeboxImage.classList.remove('twitch');
+              jukeboxImage.classList.add('activated');
+              
+              // Reveal play button with poof animation
+              if (playButton) {
+                playButton.classList.add('revealed');
+              }
+              console.log('Play button revealed!');
+            }, 500); // Match animation duration (0.5s)
+          } catch (error) {
+            console.error('Error activating YouTube:', error);
+            jukeboxImage.classList.remove('twitch');
+          }
+        }
+      });
     }
 
     // Text flicker animation
@@ -861,249 +1840,352 @@
       }
     }
 
+    // Prevent browser from restoring scroll position
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
     // Scroll-based color change
-    const playButton = document.getElementById('playButton');
+    const jukeboxContainer = document.getElementById('jukeboxContainer');
     const smallText = document.getElementById('smallText');
     const mainTitle = document.getElementById('mainTitle');
     const orangeBlurb = document.querySelector('.orange-blurb');
+
+    // Prevent scrolling past the top
+    window.addEventListener('scroll', function() {
+      if (window.scrollY < 0) {
+        window.scrollTo(0, 0);
+      }
+    });
+
+    // Reset scroll position to top on page load/refresh
+    window.addEventListener('beforeunload', function() {
+      window.scrollTo(0, 0);
+    });
+
+    // Reset scroll position immediately on load
+    window.addEventListener('load', function() {
+      window.scrollTo(0, 0);
+      const whiteSection = document.querySelector('.white-section');
+      if (whiteSection) {
+        whiteSection.style.transform = 'translateY(0)';
+      }
+    });
+
+    // Also reset on DOMContentLoaded for faster reset
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        window.scrollTo(0, 0);
+        const whiteSection = document.querySelector('.white-section');
+        if (whiteSection) {
+          whiteSection.style.transform = 'translateY(0)';
+        }
+      });
+    } else {
+      window.scrollTo(0, 0);
+      const whiteSection = document.querySelector('.white-section');
+      if (whiteSection) {
+        whiteSection.style.transform = 'translateY(0)';
+      }
+    }
 
     window.addEventListener('scroll', function() {
       const scrollY = window.scrollY;
       const viewportHeight = window.innerHeight;
       
+      // Prevent scrolling past the top
+      if (scrollY < 0) {
+        window.scrollTo(0, 0);
+        return;
+      }
+      
+      // Move white section up as user scrolls (peeling effect)
+      const whiteSection = document.querySelector('.white-section');
+      if (whiteSection) {
+        if (scrollY === 0) {
+          // At the top, ensure white section is fully visible
+          whiteSection.style.transform = 'translateY(0)';
+        } else {
+          // Move white section up by scroll amount, but don't go past -100vh
+          const translateY = Math.max(-viewportHeight, -scrollY);
+          whiteSection.style.transform = `translateY(${translateY}px)`;
+        }
+      }
+      
       // When scroll passes the viewport height, we're into the orange section
+      const playBtn = document.getElementById('playButton');
       if (scrollY >= viewportHeight) {
-        playButton.classList.add('on-orange');
+        if (jukeboxContainer) jukeboxContainer.classList.add('on-orange');
+        if (playBtn) playBtn.classList.add('on-orange');
         smallText.classList.add('on-orange');
         mainTitle.classList.add('on-orange');
         orangeBlurb.classList.add('on-orange');
       } else {
-        playButton.classList.remove('on-orange');
+        if (jukeboxContainer) jukeboxContainer.classList.remove('on-orange');
+        if (playBtn) playBtn.classList.remove('on-orange');
         smallText.classList.remove('on-orange');
         mainTitle.classList.remove('on-orange');
         orangeBlurb.classList.remove('on-orange');
       }
 
-      // Third section slide-up effect - directly tied to scroll position
+      // Third section slide-up effect - starts after scrolling through orange section (200vh total)
       const thirdSection = document.getElementById('thirdSection');
       const thirdPageRSVP = document.getElementById('thirdPageRSVP');
-      const scrollProgress = scrollY / (document.documentElement.scrollHeight - window.innerHeight);
       
-      // Start sliding up third section after 50% scroll
-      // Map scroll progress (0.5 to 1.0) to translateY (100% to 0%)
-      if (scrollProgress > 0.5) {
-        const thirdSectionProgress = (scrollProgress - 0.5) / 0.5; // 0 to 1
-        const translateValue = 100 - (thirdSectionProgress * 100); // 100% to 0%
-        thirdSection.style.transform = `translateY(${translateValue}%)`;
+      if (thirdSection) {
+        const orangeSectionEnd = viewportHeight * 2; // After white (100vh) + orange (100vh)
         
-        // Fade in RSVP button when third section is halfway visible (only once)
-        if (thirdSectionProgress >= 0.5 && !thirdPageRSVP.dataset.fadedIn) {
-          setTimeout(() => {
-            thirdPageRSVP.classList.add('visible');
-          }, 1000); // 1 second delay
-          thirdPageRSVP.dataset.fadedIn = 'true'; // Only fade in once
+        // Start sliding up third section after scrolling through orange section
+        if (scrollY >= orangeSectionEnd) {
+          // Calculate progress from orangeSectionEnd to orangeSectionEnd + viewportHeight
+          const thirdSectionStart = orangeSectionEnd;
+          const scrollDistance = scrollY - thirdSectionStart;
+          const thirdSectionProgress = Math.min(1, scrollDistance / viewportHeight);
+          const translateValue = 100 - (thirdSectionProgress * 100); // 100% to 0%
+          thirdSection.style.transform = `translateY(${translateValue}%)`;
+          thirdSection.style.display = 'flex'; // Ensure it's visible
+          
+          // Enable scrolling only when section is fully visible (translateY = 0%)
+          if (translateValue <= 0) {
+            thirdSection.classList.add('scrollable');
+          } else {
+            thirdSection.classList.remove('scrollable');
+          }
+          
+          // Fade in RSVP button when third section is halfway visible (only once)
+          if (thirdPageRSVP && thirdSectionProgress >= 0.5 && !thirdPageRSVP.dataset.fadedIn) {
+            setTimeout(() => {
+              thirdPageRSVP.classList.add('visible');
+            }, 1000); // 1 second delay
+            thirdPageRSVP.dataset.fadedIn = 'true'; // Only fade in once
+          }
+          // Don't remove 'visible' class when scrolling back up - button stays permanently
+        } else {
+          thirdSection.style.transform = 'translateY(100%)'; // Keep hidden
+          thirdSection.classList.remove('scrollable'); // Disable scrolling when hidden
+          // Don't remove button visibility - once it appears, it stays
         }
-        // Don't remove 'visible' class when scrolling back up - button stays permanently
-      } else {
-        thirdSection.style.transform = 'translateY(100%)'; // Keep hidden
-        // Don't remove button visibility - once it appears, it stays
       }
     });
   </script>
 
-
-  <!-- RSVP Modal -->
-  <div class="modal rsvp-modal" id="rsvpModal">
-    <div class="modal-header">
-      <h2 class="modal-title">RSVP</h2>
-      <button class="modal-close" id="closeRSVP">&times;</button>
-    </div>
-    <div class="modal-content" id="rsvpContent">
-      
-      <!-- Step 1: Enter Name -->
-      <div class="rsvp-step" id="step1" style="display: block;">
-        <input type="text" class="rsvp-input" id="nameInput" placeholder="enter your name" required>
-        <button class="rsvp-button" id="nameBtn">continue</button>
-        
-        <!-- Show guest list on first screen -->
-        <div class="guest-list" style="margin-top: 2rem;">
-          <h3 class="guest-list-title">guest list</h3>
-          <ul class="guest-list-items" id="guestListStep1">
-            <!-- Guest names will be mirrored here from step 7 -->
-          </ul>
-        </div>
-      </div>
-
-      <!-- Step 2: Choose Guest Count -->
-      <div class="rsvp-step" id="step2" style="display: none;">
-        <div style="display: flex; gap: 0.5rem;">
-          <button class="rsvp-split-button" id="justMeBtn">just me</button>
-          <button class="rsvp-split-button" id="plusOneBtn">plus one</button>
-        </div>
-      </div>
-
-      <!-- Step 3: Enter Phone Number -->
-      <div class="rsvp-step" id="step3" style="display: none;">
-        <input type="tel" class="rsvp-input" id="phoneInput" placeholder="enter your phone number" required>
-        <button class="rsvp-button" id="phoneBtn">continue</button>
-      </div>
-
-      <!-- Step 4: Enter Verification Code -->
-      <div class="rsvp-step" id="step4" style="display: none;">
-        <p style="color: #ffffff; font-size: 0.9rem; margin-bottom: 1rem; text-align: center;">
-          you should have received a text. if not, <span id="resendCode" style="text-decoration: underline; cursor: pointer;">click here</span>
-        </p>
-        <input type="text" class="rsvp-input" id="codeInput" placeholder="enter verification code" maxlength="4" required>
-        <button class="rsvp-button" id="verifyBtn">continue</button>
-      </div>
-
-      <!-- Step 5: Payment Confirmation -->
-      <div class="rsvp-step" id="step5" style="display: none;">
-        <p style="color: #ffffff; font-size: 1.1rem; margin-bottom: 1rem; text-align: center; line-height: 1.5;">
-          have you paid for your ticket yet?
-        </p>
-        <p style="color: #ffffff; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">
-          if not, venmo <strong id="ticketPrice">$125</strong> to <a href="https://account.venmo.com/u/maxheald" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: bold;">@maxheald</a>
-        </p>
-        <button class="rsvp-button" id="paidBtn">i've paid</button>
-      </div>
-
-      <!-- Step 6: Confirmation -->
-      <div class="rsvp-step" id="step6" style="display: none;">
-        <p style="color: #ffffff; font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center; font-weight: bold;">
-          you're in! stoked to have you for the night
-        </p>
-        <button class="rsvp-button" id="letsGoBtn">woo!</button>
-      </div>
-
-      <!-- Step 7: Guest List View -->
-      <div class="rsvp-step" id="step7" style="display: none;">
-        <h3 class="guest-list-title">guest list</h3>
-        <ul class="guest-list-items" id="guestList">
-          <!-- Guest names will be added here -->
-        </ul>
-      </div>
-
-    </div>
-  </div>
-
   <!-- Supabase Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" 
+          onerror="console.error('Failed to load Supabase library')"
+          onload="console.log('Supabase library loaded successfully')"></script>
 
   <script>
+    // IMMEDIATE TEST - This should log immediately when script runs
+    console.log('=== RSVP SCRIPT LOADING ===');
+    
+    // Test if button exists RIGHT NOW
+    setTimeout(() => {
+      const testBtn = document.getElementById('thirdPageRSVP');
+      console.log('Button check after 100ms:', {
+        found: !!testBtn,
+        element: testBtn,
+        visible: testBtn ? window.getComputedStyle(testBtn).opacity : 'N/A',
+        display: testBtn ? window.getComputedStyle(testBtn).display : 'N/A'
+      });
+      
+      // Test listener removed - using main handler instead
+    }, 100);
+    
     // Initialize Supabase
+    let supabase;
     const SUPABASE_URL = 'https://chmllmyqattcdgmuwpgr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNobWxsbXlxYXR0Y2RnbXV3cGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2OTk0MzksImV4cCI6MjA3ODI3NTQzOX0.hy1Gf9uN9mj7dxMQxCZVOLk3cEn_UM3BbTeM7WDC0Do';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // Modal functionality
-    const rsvpModal = document.getElementById('rsvpModal');
-    const thirdPageRSVPBtn = document.getElementById('thirdPageRSVP');
-    const closeRSVP = document.getElementById('closeRSVP');
-
-    // Open RSVP modal from third page button
-    thirdPageRSVPBtn.addEventListener('click', () => {
-      rsvpModal.classList.add('active');
-    });
-
-    // Close RSVP modal
-    closeRSVP.addEventListener('click', () => {
-      rsvpModal.classList.remove('active');
-    });
-
-    // Drag functionality for modals
-    function makeDraggable(modal) {
-      let isDragging = false;
-      let currentX;
-      let currentY;
-      let initialX;
-      let initialY;
-      let xOffset = 0;
-      let yOffset = 0;
-
-      modal.addEventListener('mousedown', dragStart);
-      modal.addEventListener('touchstart', dragStart);
-      
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('touchmove', drag);
-      
-      document.addEventListener('mouseup', dragEnd);
-      document.addEventListener('touchend', dragEnd);
-
-      function dragStart(e) {
-        // Don't drag if clicking on interactive elements
-        if (e.target.classList.contains('modal-close') || 
-            e.target.classList.contains('rsvp-input') || 
-            e.target.classList.contains('rsvp-button') ||
-            e.target.classList.contains('rsvp-split-button') ||
-            e.target.classList.contains('edit-button') ||
-            e.target.classList.contains('edit-option-link') ||
-            e.target.closest('.edit-options')) {
-          return;
+    
+    // Function to initialize Supabase (called after library loads)
+    function initSupabase() {
+      try {
+        // The UMD build exposes supabase on window
+        if (window.supabase && window.supabase.createClient) {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          console.log('Supabase initialized successfully');
+          console.log('Supabase URL:', SUPABASE_URL);
+          
+          // Test connection
+          testSupabaseConnection();
+          return true;
         }
-
-        // Don't drag if clicking on text content (to allow scrolling)
-        const clickedOnText = e.target.tagName === 'P' || 
-                             e.target.tagName === 'INPUT' || 
-                             e.target.tagName === 'BUTTON' ||
-                             e.target.tagName === 'UL' ||
-                             e.target.tagName === 'LI';
-        
-        if (clickedOnText) {
-          return;
-        }
-
-        if (e.type === 'touchstart') {
-          initialX = e.touches[0].clientX - xOffset;
-          initialY = e.touches[0].clientY - yOffset;
-        } else {
-          initialX = e.clientX - xOffset;
-          initialY = e.clientY - yOffset;
-        }
-
-        if (e.target === modal || modal.contains(e.target)) {
-          isDragging = true;
-        }
-      }
-
-      function drag(e) {
-        if (isDragging) {
-          e.preventDefault();
-
-          if (e.type === 'touchmove') {
-            currentX = e.touches[0].clientX - initialX;
-            currentY = e.touches[0].clientY - initialY;
-          } else {
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-          }
-
-          xOffset = currentX;
-          yOffset = currentY;
-
-          setTranslate(currentX, currentY, modal);
-        }
-      }
-
-      function dragEnd() {
-        initialX = currentX;
-        initialY = currentY;
-        isDragging = false;
-      }
-
-      function setTranslate(xPos, yPos, el) {
-        el.style.transform = `translate(calc(-50% + ${xPos}px), calc(-50% + ${yPos}px))`;
+        return false;
+      } catch (err) {
+        console.error('Error initializing Supabase:', err);
+        return false;
       }
     }
+    
+    // Test Supabase connection
+    async function testSupabaseConnection() {
+      if (!supabase) return;
+      
+      try {
+        console.log('Testing Supabase connection...');
+        // Try a simple query to test connection
+        const { data, error } = await supabase
+          .from('guests')
+          .select('id')
+          .limit(1);
+        
+        if (error) {
+          console.error('Supabase connection test failed:', error);
+          console.error('Error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
+          
+          if (error.code === 'PGRST116' || error.message.includes('relation') || error.message.includes('does not exist')) {
+            console.error('⚠️ TABLE ERROR: The "guests" table does not exist in your Supabase database.');
+            console.error('Please create the table in your Supabase dashboard:');
+            console.error('1. Go to https://supabase.com/dashboard');
+            console.error('2. Select your project');
+            console.error('3. Go to Table Editor');
+            console.error('4. Create a new table called "guests" with columns:');
+            console.error('   - id (uuid, primary key, default: uuid_generate_v4())');
+            console.error('   - name (text)');
+            console.error('   - email (text)');
+            console.error('   - guest_count (integer, default: 1)');
+            console.error('   - paid (boolean, default: false)');
+            console.error('   - verified (boolean, default: false)');
+            console.error('   - created_at (timestamp, default: now())');
+          } else if (error.message.includes('Failed to fetch') || error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+            console.error('⚠️ DNS/Network Error: Cannot reach Supabase. Check:');
+            console.error('1. Your internet connection');
+            console.error('2. Supabase project URL is correct:', SUPABASE_URL);
+            console.error('3. Supabase project is active (not paused)');
+            console.error('4. Firewall/VPN is not blocking the connection');
+          } else if (error.code === 'PGRST301' || error.message.includes('permission denied')) {
+            console.error('⚠️ PERMISSION ERROR: Check Row Level Security (RLS) policies in Supabase');
+            console.error('The table exists but RLS is blocking access. Disable RLS or add policies.');
+          }
+        } else {
+          console.log('✅ Supabase connection test successful!');
+          console.log('Table "guests" exists and is accessible');
+        }
+      } catch (err) {
+        console.error('Supabase connection test error:', err);
+      }
+    }
+    
+    // Wait for DOM and Supabase script to load
+    function waitForSupabase() {
+      if (initSupabase()) {
+        console.log('Supabase ready, will load guests...');
+        // Wait longer for all functions to be defined, then load guests
+        setTimeout(() => {
+          if (typeof loadGuestsFromDatabase === 'function') {
+            console.log('Loading guests from database...');
+            loadGuestsFromDatabase().catch(err => {
+              console.error('Error in loadGuestsFromDatabase:', err);
+            });
+          } else {
+            console.warn('loadGuestsFromDatabase function not found yet, retrying...');
+            setTimeout(waitForSupabase, 500);
+          }
+        }, 500);
+      } else {
+        // Retry after a short delay
+        setTimeout(waitForSupabase, 100);
+      }
+    }
+    
+    // Also try loading guests after a longer delay to ensure everything is ready
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        if (supabase && typeof loadGuestsFromDatabase === 'function') {
+          console.log('Window loaded - attempting to load guests again...');
+          loadGuestsFromDatabase().catch(err => {
+            console.error('Error loading guests on window load:', err);
+          });
+        }
+      }, 1000);
+    });
+    
+    // Start initialization when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', waitForSupabase);
+    } else {
+      waitForSupabase();
+    }
 
-    makeDraggable(rsvpModal);
+    // RSVP form toggle functionality
+    const rsvpFormContainer = document.getElementById('rsvpFormContainer');
+    const thirdPageRSVPBtn = document.getElementById('thirdPageRSVP');
+
+    // Toggle RSVP form visibility
+    if (thirdPageRSVPBtn && rsvpFormContainer) {
+      thirdPageRSVPBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isVisible = rsvpFormContainer.style.display !== 'none';
+        
+        if (isVisible) {
+          // Hide form
+          rsvpFormContainer.style.display = 'none';
+          thirdPageRSVPBtn.textContent = 'RSVP';
+        } else {
+          // Show form
+          rsvpFormContainer.style.display = 'block';
+          // Reset opacity and transition to ensure form is visible
+          rsvpFormContainer.style.opacity = '1';
+          rsvpFormContainer.style.transition = '';
+          thirdPageRSVPBtn.textContent = 'Close';
+          
+          // Load guests from database
+          if (typeof loadGuestsFromDatabase === 'function') {
+            try {
+              loadGuestsFromDatabase();
+            } catch (err) {
+              console.error('Error loading guests:', err);
+            }
+          }
+          
+          // Always show step 1 (form + guest list)
+          if (typeof showStep === 'function') {
+            showStep(1);
+          } else {
+            // Fallback: manually show step 1
+            const step1 = document.getElementById('step1');
+            if (step1) {
+              document.querySelectorAll('.rsvp-step').forEach(step => {
+                step.style.display = 'none';
+              });
+              step1.style.display = 'block';
+            }
+          }
+          
+          // Clear inputs for new RSVP
+          const nameInput = document.getElementById('nameInput');
+          const emailInput = document.getElementById('emailInput');
+          if (nameInput) nameInput.value = '';
+          if (emailInput) emailInput.value = '';
+          
+          // Reset guest count selection
+          const justMeBtn = document.getElementById('justMeBtn');
+          const plusOneBtn = document.getElementById('plusOneBtn');
+          if (justMeBtn) justMeBtn.classList.remove('selected');
+          if (plusOneBtn) plusOneBtn.classList.remove('selected');
+          
+          // Reset RSVP data for new submission
+          rsvpData.guestCount = null;
+          rsvpData.name = '';
+          rsvpData.email = '';
+          rsvpData.guestId = null;
+          rsvpData.isEditingPlusOne = false;
+          rsvpData.existingListItem = null;
+        }
+      });
+    }
 
     // RSVP Multi-Step Flow
     let rsvpData = {
       name: '',
-      guestCount: 1,
-      phone: '',
-      verified: false,
+      guestCount: null, // Will be set when user clicks solo or +1
+      email: '',
       paid: false,
       isEditingPlusOne: false, // Track if adding +1 to existing entry
       existingListItem: null, // Reference to the list item being edited
@@ -1115,10 +2197,7 @@
       step1: document.getElementById('step1'),
       step2: document.getElementById('step2'),
       step3: document.getElementById('step3'),
-      step4: document.getElementById('step4'),
-      step5: document.getElementById('step5'),
-      step6: document.getElementById('step6'),
-      step7: document.getElementById('step7')
+      step4: document.getElementById('step4')
     };
 
     // Get all input/button elements
@@ -1126,35 +2205,774 @@
     const nameBtn = document.getElementById('nameBtn');
     const justMeBtn = document.getElementById('justMeBtn');
     const plusOneBtn = document.getElementById('plusOneBtn');
-    const phoneInput = document.getElementById('phoneInput');
-    const phoneBtn = document.getElementById('phoneBtn');
-    const codeInput = document.getElementById('codeInput');
-    const verifyBtn = document.getElementById('verifyBtn');
-    const resendCode = document.getElementById('resendCode');
+    const emailInput = document.getElementById('emailInput');
+    const emailBtn = document.getElementById('emailBtn');
     const paidBtn = document.getElementById('paidBtn');
-    const letsGoBtn = document.getElementById('letsGoBtn');
     const guestList = document.getElementById('guestList');
-    const guestListStep1 = document.getElementById('guestListStep1');
+    const guestListRight = document.getElementById('guestListRight');
+    const guestListHeader = document.querySelector('#guestListContainer .guest-list-header');
     const ticketPrice = document.getElementById('ticketPrice');
 
-    // Helper function to sync guest lists between step 1 and step 7
+    // Helper function to sync guest lists between step 4 and right-side list
     function syncGuestLists() {
-      guestListStep1.innerHTML = guestList.innerHTML;
+      // Clone nodes instead of copying innerHTML to preserve structure
+      guestListRight.innerHTML = '';
+      
+      Array.from(guestList.children).forEach(child => {
+        const cloned = child.cloneNode(true);
+        
+        // Explicitly copy dataset attributes to ensure they're preserved
+        // (cloneNode should do this, but being explicit ensures it works)
+        if (child.dataset.guestId) {
+          cloned.dataset.guestId = child.dataset.guestId;
+        }
+        if (child.dataset.guestName) {
+          cloned.dataset.guestName = child.dataset.guestName;
+        }
+        if (child.dataset.guestCount) {
+          cloned.dataset.guestCount = child.dataset.guestCount;
+        }
+        
+        // Also ensure buttons inside have their dataset attributes
+        const originalButtons = child.querySelectorAll('.edit-option-link');
+        const clonedButtons = cloned.querySelectorAll('.edit-option-link');
+        originalButtons.forEach((origBtn, index) => {
+          if (clonedButtons[index]) {
+            if (origBtn.dataset.guestId) {
+              clonedButtons[index].dataset.guestId = origBtn.dataset.guestId;
+            }
+            if (origBtn.dataset.guestName) {
+              clonedButtons[index].dataset.guestName = origBtn.dataset.guestName;
+            }
+            if (origBtn.dataset.guestCount) {
+              clonedButtons[index].dataset.guestCount = origBtn.dataset.guestCount;
+            }
+          }
+        });
+        
+        guestListRight.appendChild(cloned);
+        
+        // Re-render reactions for cloned item (since cloneNode loses event listeners)
+        const guestId = cloned.dataset.guestId;
+        if (guestId) {
+          renderReactions(cloned, guestId);
+        }
+      });
+      
+      // Update guest count display
+      updateGuestCount();
+    }
+    
+    // Update guest count display
+    function updateGuestCount() {
+      if (guestListHeader && guestList) {
+        const count = guestList.children.length;
+        guestListHeader.textContent = `Guests (${count})`;
+      }
+      // Also update spots left counter
+      updateSpotsLeft();
+    }
+    
+    // Update spots left counter
+    function updateSpotsLeft() {
+      const rsvpCount = guestList ? guestList.children.length : 0;
+      const spotsLeft = 200 - rsvpCount;
+      const spotsLeftElement = document.getElementById('rsvpCount');
+      if (spotsLeftElement) {
+        spotsLeftElement.textContent = spotsLeft;
+      }
+    }
+    
+    // Use event delegation for edit buttons - works even after innerHTML copies
+    // Store handler reference to prevent duplicate listeners
+    let editButtonHandler = null;
+    
+    function attachEditButtonDelegation() {
+      // Remove old handlers if they exist
+      if (editButtonHandler) {
+        if (guestList) guestList.removeEventListener('click', editButtonHandler);
+        if (guestListRight) guestListRight.removeEventListener('click', editButtonHandler);
+      }
+      
+      editButtonHandler = (e) => {
+        // Don't interfere with emoji picker clicks
+        if (e.target.closest('.emoji-picker') || e.target.closest('.guest-name-clickable') || e.target.closest('.emoji-bubble')) {
+          return; // Let emoji handlers deal with it
+        }
+        
+        // Handle edit button clicks
+        const editBtn = e.target.closest('.edit-button');
+        if (editBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const editOptions = editBtn.nextElementSibling;
+          if (editOptions && editOptions.classList.contains('edit-options')) {
+            editBtn.style.display = 'none';
+            editOptions.style.display = 'inline';
+          } else {
+            // Try finding editOptions as a sibling span
+            let sibling = editBtn.nextSibling;
+            while (sibling) {
+              if (sibling.nodeType === 1 && sibling.querySelector('.edit-option-link')) {
+                editBtn.style.display = 'none';
+                sibling.style.display = 'inline';
+                break;
+              }
+              sibling = sibling.nextSibling;
+            }
+          }
+          return;
+        }
+        
+        // Handle delete button clicks
+        const deleteBtn = e.target.closest('.edit-option-link');
+        if (deleteBtn) {
+          const btnText = deleteBtn.textContent.trim().toLowerCase();
+          if (btnText === 'delete') {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Find the list item first (most reliable source)
+            const listItem = deleteBtn.closest('li');
+            
+            // Try to get guestId from multiple sources
+            let guestId = null;
+            let guestName = null;
+            
+            // Priority 1: List item dataset (most reliable)
+            if (listItem) {
+              guestId = listItem.dataset.guestId;
+              guestName = listItem.dataset.guestName;
+            }
+            
+            // Priority 2: Button dataset
+            if (!guestId && deleteBtn.dataset.guestId) {
+              guestId = deleteBtn.dataset.guestId;
+              guestName = deleteBtn.dataset.guestName || guestName;
+            }
+            
+            // Priority 3: Try to get from the name span's parent
+            if (!guestId && listItem) {
+              const nameSpan = listItem.querySelector('span:first-child');
+              if (nameSpan && nameSpan.dataset.guestId) {
+                guestId = nameSpan.dataset.guestId;
+                guestName = nameSpan.dataset.guestName || guestName;
+              }
+            }
+            
+            console.log('Delete button clicked:', { 
+              guestId, 
+              guestName, 
+              buttonDataset: deleteBtn.dataset,
+              listItemDataset: listItem ? listItem.dataset : null,
+              listItem: listItem
+            });
+            
+            if (guestId) {
+              // Check if this is a temporary ID (not in database)
+              if (guestId.toString().startsWith('temp-')) {
+                // Just remove from DOM, no database operation needed
+                if (confirm(`Remove ${guestName || 'this guest'} from the guest list?`)) {
+                  if (listItem) {
+                    listItem.remove();
+                    syncGuestLists();
+                    updateGuestCount();
+                  }
+                }
+                return;
+              }
+              
+              if (confirm(`Remove ${guestName || 'this guest'} from the guest list?`)) {
+                (async () => {
+                  try {
+                    if (!supabase) {
+                      throw new Error('Supabase not initialized');
+                    }
+                    const { error } = await supabase
+                      .from('guests')
+                      .delete()
+                      .eq('id', guestId);
+                    if (!error) {
+                      // Remove from localStorage tracking
+                      removeMyRSVP(guestId);
+                      await loadGuestsFromDatabase();
+                    } else {
+                      console.error('Delete error:', error);
+                      alert(`Error deleting guest: ${error.message || 'Please try again.'}`);
+                    }
+                  } catch (err) {
+                    console.error('Delete error:', err);
+                    alert(`Error deleting guest: ${err.message || 'Please refresh and try again.'}`);
+                  }
+                })();
+              }
+            } else {
+              console.error('No guestId found for delete button', {
+                deleteBtn,
+                listItem,
+                buttonDataset: deleteBtn ? deleteBtn.dataset : null,
+                listItemDataset: listItem ? listItem.dataset : null
+              });
+              alert('Error: Could not find guest ID. Please refresh and try again.');
+            }
+            return;
+          }
+        }
+        
+        // Handle +1 button clicks
+        const plusOneBtn = e.target.closest('.edit-option-link');
+        if (plusOneBtn) {
+          const btnText = plusOneBtn.textContent.trim();
+          console.log('Edit option link clicked:', btnText, plusOneBtn);
+          if (btnText === '+1' || btnText === 'plus one' || btnText.includes('+1')) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('+1 button handler triggered');
+            
+            // Find the list item first (most reliable source)
+            const listItem = plusOneBtn.closest('li');
+            
+            // Try to get data from multiple sources
+            let guestId = null;
+            let guestName = null;
+            let guestCount = 1;
+            
+            // Priority 1: List item dataset (most reliable)
+            if (listItem) {
+              guestId = listItem.dataset.guestId;
+              guestName = listItem.dataset.guestName;
+              guestCount = parseInt(listItem.dataset.guestCount) || 1;
+            }
+            
+            // Priority 2: Button dataset
+            if (!guestId && plusOneBtn.dataset.guestId) {
+              guestId = plusOneBtn.dataset.guestId;
+              guestName = plusOneBtn.dataset.guestName || guestName;
+              guestCount = parseInt(plusOneBtn.dataset.guestCount) || guestCount;
+            }
+            
+            // Priority 3: Try to get from the name span's parent
+            if (!guestId && listItem) {
+              const nameSpan = listItem.querySelector('span:first-child');
+              if (nameSpan && nameSpan.dataset.guestId) {
+                guestId = nameSpan.dataset.guestId;
+                guestName = nameSpan.dataset.guestName || guestName;
+                guestCount = parseInt(nameSpan.dataset.guestCount) || guestCount;
+              }
+            }
+            
+            console.log('+1 button clicked:', { 
+              guestId, 
+              guestName, 
+              guestCount,
+              buttonDataset: plusOneBtn.dataset,
+              listItemDataset: listItem ? listItem.dataset : null,
+              listItem: listItem
+            });
+            
+            if (guestId) {
+              if (guestCount === 2) {
+                alert('You already have a +1!');
+                return;
+              }
+              
+              if (!supabase) {
+                alert('Database connection unavailable. Please refresh the page and try again.');
+                return;
+              }
+              
+              // Set up editing state and go through payment flow
+              rsvpData.isEditingPlusOne = true;
+              rsvpData.name = guestName || '';
+              rsvpData.guestId = guestId;
+              rsvpData.guestCount = 1; // Will become 2 after payment
+              
+              // Find the list item to store reference
+              const listItem = plusOneBtn.closest('li');
+              if (listItem) {
+                rsvpData.existingListItem = listItem;
+                // Also store data on list item for future reference
+                listItem.dataset.guestId = guestId;
+                listItem.dataset.guestName = guestName;
+              }
+              
+              ticketPrice.textContent = '$125'; // Additional payment for +1
+              const venmoLink = document.getElementById('venmoPaymentLink');
+              if (venmoLink) {
+                venmoLink.href = 'https://account.venmo.com/payment-link?amount=125&note=for%20the%20gala!&recipients=maxheald&txn=pay';
+              }
+              
+              // Make sure RSVP form container is visible
+              const rsvpFormContainer = document.getElementById('rsvpFormContainer');
+              if (rsvpFormContainer) {
+                rsvpFormContainer.style.display = 'block';
+                rsvpFormContainer.style.opacity = '1';
+                console.log('RSVP form container shown');
+              } else {
+                console.error('rsvpFormContainer not found!');
+              }
+              
+              // Update RSVP button text
+              const thirdPageRSVPBtn = document.getElementById('thirdPageRSVP');
+              if (thirdPageRSVPBtn) {
+                thirdPageRSVPBtn.textContent = 'Close';
+              }
+              
+              // Show step 3 (payment screen)
+              console.log('Calling showStep(3)...');
+              showStep(3); // Go to payment screen
+              
+              // Double-check step 3 is visible
+              setTimeout(() => {
+                const step3 = document.getElementById('step3');
+                if (step3) {
+                  const isVisible = step3.style.display !== 'none';
+                  console.log('Step 3 visibility check:', isVisible, step3.style.display);
+                  if (!isVisible) {
+                    console.error('Step 3 is not visible! Forcing display...');
+                    step3.style.display = 'block';
+                  }
+                } else {
+                  console.error('Step 3 element not found!');
+                }
+              }, 100);
+            } else {
+              console.error('No guestId found for +1 button');
+              alert('Error: Could not find guest ID. Please refresh and try again.');
+            }
+            return;
+          }
+        }
+      };
+      
+      // Attach to all guest lists
+      if (guestList) guestList.addEventListener('click', editButtonHandler);
+      if (guestListRight) guestListRight.addEventListener('click', editButtonHandler);
+    }
+
+    // Emoji reactions functionality
+    const AVAILABLE_EMOJIS = ['👍', '❤️', '🎉', '🔥', '🍻', '💃'];
+    
+    // Get user's reactions from localStorage
+    function getUserReactions(guestId) {
+      const key = `reactions_${guestId}`;
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : [];
+    }
+    
+    // Save user's reaction to localStorage (adds to end for order tracking)
+    function saveUserReaction(guestId, emoji) {
+      const key = `reactions_${guestId}`;
+      const reactions = getUserReactions(guestId);
+      if (!reactions.includes(emoji)) {
+        reactions.push(emoji);
+        localStorage.setItem(key, JSON.stringify(reactions));
+      }
+    }
+    
+    // Remove user's reaction from localStorage
+    function removeUserReaction(guestId, emoji) {
+      const key = `reactions_${guestId}`;
+      const reactions = getUserReactions(guestId);
+      const index = reactions.indexOf(emoji);
+      if (index > -1) {
+        reactions.splice(index, 1);
+        localStorage.setItem(key, JSON.stringify(reactions));
+      }
+    }
+    
+    // Check if user has already reacted with this emoji
+    function hasUserReacted(guestId, emoji) {
+      const reactions = getUserReactions(guestId);
+      return reactions.includes(emoji);
+    }
+    
+    // Track RSVPs created on this device
+    function getMyRSVPs() {
+      const stored = localStorage.getItem('myRSVPs');
+      return stored ? JSON.parse(stored) : [];
+    }
+    
+    function addMyRSVP(guestId) {
+      const myRSVPs = getMyRSVPs();
+      if (!myRSVPs.includes(guestId)) {
+        myRSVPs.push(guestId);
+        localStorage.setItem('myRSVPs', JSON.stringify(myRSVPs));
+      }
+    }
+    
+    function removeMyRSVP(guestId) {
+      const myRSVPs = getMyRSVPs();
+      const index = myRSVPs.indexOf(guestId);
+      if (index > -1) {
+        myRSVPs.splice(index, 1);
+        localStorage.setItem('myRSVPs', JSON.stringify(myRSVPs));
+      }
+    }
+    
+    function isMyRSVP(guestId) {
+      const myRSVPs = getMyRSVPs();
+      return myRSVPs.includes(guestId);
+    }
+    
+    // Load reactions for a guest from database
+    async function loadReactionsForGuest(guestId) {
+      if (!supabase) return {};
+      
+      try {
+        const { data, error } = await supabase
+          .from('reactions')
+          .select('emoji')
+          .eq('guest_id', guestId);
+        
+        if (error) {
+          console.error('Error loading reactions:', error);
+          return {};
+        }
+        
+        // Count reactions by emoji
+        const reactionCounts = {};
+        if (data) {
+          data.forEach(reaction => {
+            reactionCounts[reaction.emoji] = (reactionCounts[reaction.emoji] || 0) + 1;
+          });
+        }
+        
+        return reactionCounts;
+      } catch (err) {
+        console.error('Error loading reactions:', err);
+        return {};
+      }
+    }
+    
+    // Add or remove reaction to/from database
+    async function addReaction(guestId, emoji) {
+      if (!supabase) {
+        console.error('Supabase not initialized');
+        return false;
+      }
+      
+      // Check if user has already reacted - if so, remove it
+      if (hasUserReacted(guestId, emoji)) {
+        // Remove the reaction
+        try {
+          const { error } = await supabase
+            .from('reactions')
+            .delete()
+            .eq('guest_id', guestId)
+            .eq('emoji', emoji);
+          
+          if (error) {
+            console.error('Error removing reaction:', error);
+            return false;
+          }
+          
+          // Remove from localStorage
+          removeUserReaction(guestId, emoji);
+          return true; // Return true to trigger re-render
+        } catch (err) {
+          console.error('Error removing reaction:', err);
+          return false;
+        }
+      }
+      
+      // Add new reaction
+      try {
+        const { error } = await supabase
+          .from('reactions')
+          .insert([{
+            guest_id: guestId,
+            emoji: emoji
+          }]);
+        
+        if (error) {
+          console.error('Error adding reaction:', error);
+          return false;
+        }
+        
+        // Save to localStorage (adds to end of array for order tracking)
+        saveUserReaction(guestId, emoji);
+        
+        return true;
+      } catch (err) {
+        console.error('Error adding reaction:', err);
+        return false;
+      }
+    }
+    
+    // Create emoji bubble element
+    function createEmojiBubble(emoji, count, guestId, onClick) {
+      const bubble = document.createElement('div');
+      bubble.className = 'emoji-bubble';
+      bubble.dataset.emoji = emoji;
+      bubble.dataset.guestId = guestId;
+      
+      const emojiSpan = document.createElement('span');
+      emojiSpan.className = 'emoji';
+      emojiSpan.textContent = emoji;
+      bubble.appendChild(emojiSpan);
+      
+      // Always show count badge (even for count = 1)
+      const badge = document.createElement('div');
+      badge.className = 'emoji-count-badge';
+      badge.textContent = count;
+      bubble.appendChild(badge);
+      
+      if (onClick) {
+        bubble.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onClick(emoji, guestId);
+        });
+      }
+      
+      return bubble;
+    }
+    
+    // Create emoji picker element
+    function createEmojiPicker(guestId, onEmojiSelect) {
+      const picker = document.createElement('div');
+      picker.className = 'emoji-picker';
+      picker.dataset.guestId = guestId;
+      
+      AVAILABLE_EMOJIS.forEach(emoji => {
+        const emojiBtn = document.createElement('div');
+        emojiBtn.className = 'emoji-picker-emoji';
+        emojiBtn.dataset.emoji = emoji;
+        
+        // Add 'clicked' class if user has reacted with this emoji (only in picker)
+        if (hasUserReacted(guestId, emoji)) {
+          emojiBtn.classList.add('clicked');
+        }
+        
+        const emojiSpan = document.createElement('span');
+        emojiSpan.className = 'emoji';
+        emojiSpan.textContent = emoji;
+        emojiBtn.appendChild(emojiSpan);
+        
+        emojiBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // Prevent clicking already clicked emojis
+          if (emojiBtn.classList.contains('clicked')) {
+            return; // Already clicked, don't do anything
+          }
+          onEmojiSelect(emoji, guestId);
+          picker.classList.remove('active');
+        });
+        
+        picker.appendChild(emojiBtn);
+      });
+      
+      return picker;
+    }
+    
+    // Render reactions for a guest list item
+    async function renderReactions(listItem, guestId) {
+      console.log('renderReactions called for guestId:', guestId, 'listItem:', listItem);
+      
+      // Remove existing reactions container if any
+      const existingReactions = listItem.querySelector('.guest-reactions');
+      if (existingReactions) {
+        existingReactions.remove();
+      }
+      
+      // Remove existing picker if any
+      const existingPicker = listItem.querySelector('.emoji-picker');
+      if (existingPicker) {
+        existingPicker.remove();
+      }
+      
+      // Load reactions from database
+      const reactionCounts = await loadReactionsForGuest(guestId);
+      console.log('Reaction counts loaded:', reactionCounts);
+      
+      // Sort reactions by count (highest first), then by emoji order for ties
+      const sortedReactions = Object.entries(reactionCounts).sort(([emojiA, countA], [emojiB, countB]) => {
+        // First sort by count (descending - highest first)
+        if (countB !== countA) {
+          return countB - countA;
+        }
+        // If counts are equal, maintain consistent order (by emoji character)
+        return emojiA.localeCompare(emojiB);
+      });
+      
+      // Create reactions container
+      const reactionsContainer = document.createElement('div');
+      reactionsContainer.className = 'guest-reactions';
+      
+      // Add existing reaction bubbles in sorted order (highest count first, leftmost)
+      sortedReactions.forEach(([emoji, count]) => {
+        const bubble = createEmojiBubble(emoji, count, guestId, async (selectedEmoji, gId) => {
+          const success = await addReaction(gId, selectedEmoji);
+          if (success) {
+            // Reload reactions
+            await renderReactions(listItem, gId);
+            // Also update in other list if it exists
+            const otherList = guestList === listItem.parentElement ? guestListRight : guestList;
+            if (otherList) {
+              const otherItem = Array.from(otherList.children).find(li => 
+                li.dataset.guestId === gId
+              );
+              if (otherItem) {
+                await renderReactions(otherItem, gId);
+              }
+            }
+          }
+        });
+        reactionsContainer.appendChild(bubble);
+      });
+      
+      // Create emoji picker
+      const picker = createEmojiPicker(guestId, async (selectedEmoji, gId) => {
+        const success = await addReaction(gId, selectedEmoji);
+        if (success) {
+          // Reload reactions
+          await renderReactions(listItem, gId);
+          // Also update in other list if it exists
+          const otherList = guestList === listItem.parentElement ? guestListRight : guestList;
+          if (otherList) {
+            const otherItem = Array.from(otherList.children).find(li => 
+              li.dataset.guestId === gId
+            );
+            if (otherItem) {
+              await renderReactions(otherItem, gId);
+            }
+          }
+        }
+      });
+      
+      // Find the name span - it's the first span that contains the guest name
+      const nameSpan = listItem.querySelector('span:first-child');
+      console.log('Looking for name span in listItem:', listItem, 'Found:', nameSpan);
+      
+      if (!nameSpan) {
+        console.error('Name span not found in listItem. Children:', Array.from(listItem.children).map(c => c.tagName + (c.className ? '.' + c.className : '')));
+        return;
+      }
+      
+      console.log('Name span found:', nameSpan, 'Text:', nameSpan.textContent);
+      
+      // Insert picker into DOM first
+      listItem.appendChild(picker);
+      console.log('Picker inserted into DOM');
+      
+      // Insert reactions container immediately after name span (right next to name)
+      // Use insertBefore with nextSibling - if nextSibling is null, it will append to end
+      if (nameSpan.nextSibling) {
+        listItem.insertBefore(reactionsContainer, nameSpan.nextSibling);
+      } else {
+        // If no next sibling, nameSpan is last, so append to parent (which puts it right after)
+        listItem.appendChild(reactionsContainer);
+      }
+      
+      // Make name clickable to show picker (using event delegation instead of direct handler)
+      nameSpan.classList.add('guest-name-clickable');
+      nameSpan.dataset.guestId = guestId; // Store guestId for event delegation
+      console.log('Name span prepared for clicking. GuestId:', guestId, 'Span:', nameSpan);
+      
+    }
+    
+    // Global click handler for emoji picker (using event delegation)
+    if (!window.emojiPickerClickHandlerAdded) {
+      // Handle clicks on guest names to show picker
+      document.addEventListener('click', function(e) {
+        // Check if clicking on a guest name
+        const nameSpan = e.target.closest('.guest-name-clickable');
+        if (nameSpan) {
+          e.stopPropagation();
+          e.preventDefault();
+          const guestId = nameSpan.dataset.guestId;
+          const listItem = nameSpan.closest('li');
+          
+          console.log('=== NAME CLICKED (delegation)! === Guest:', guestId, 'ListItem:', listItem);
+          
+          if (listItem) {
+            const existingPicker = listItem.querySelector('.emoji-picker');
+            console.log('Picker found:', !!existingPicker);
+            
+            if (existingPicker) {
+              // Close all other pickers first
+              document.querySelectorAll('.emoji-picker.active').forEach(p => {
+                if (p !== existingPicker) {
+                  p.classList.remove('active');
+                }
+              });
+              const wasActive = existingPicker.classList.contains('active');
+              
+              if (!wasActive) {
+                // Position picker below the name span, aligned with name row
+                const nameRect = nameSpan.getBoundingClientRect();
+                existingPicker.style.top = (nameRect.bottom + 8) + 'px'; // 8px margin below
+                existingPicker.style.left = nameRect.left + 'px'; // Align with name left edge
+              }
+              
+              existingPicker.classList.toggle('active');
+              console.log('Picker toggled. Was active:', wasActive, 'Now active:', existingPicker.classList.contains('active'));
+              console.log('Picker computed display:', window.getComputedStyle(existingPicker).display);
+            } else {
+              console.error('Picker not found in listItem!', listItem);
+            }
+          }
+          return;
+        }
+        
+        // Close all pickers if clicking outside picker or name
+        if (!e.target.closest('.emoji-picker') && !e.target.closest('.guest-name-clickable')) {
+          document.querySelectorAll('.emoji-picker.active').forEach(picker => {
+            picker.classList.remove('active');
+          });
+        }
+      }, true); // Use capture phase
+      window.emojiPickerClickHandlerAdded = true;
+      console.log('Global emoji picker click handler attached');
     }
 
     // Load existing guests from Supabase
     async function loadGuestsFromDatabase() {
       try {
-        const { data, error } = await supabase
+        if (!supabase) {
+          console.warn('Supabase not initialized yet, skipping guest load');
+          return;
+        }
+        
+        console.log('Loading guests from Supabase...');
+        
+        // Try loading with paid field first, fallback to verified if needed
+        let { data, error } = await supabase
           .from('guests')
           .select('*')
-          .eq('verified', true)
+          .eq('paid', true)
           .order('created_at', { ascending: true });
+        
+        console.log('First query - paid=true:', { dataCount: data?.length, error });
+        
+        // If error or no data, try with verified field (backward compatibility)
+        if (error || !data || data.length === 0) {
+          console.log('Trying with verified field...');
+          const { data: data2, error: error2 } = await supabase
+            .from('guests')
+            .select('*')
+            .eq('verified', true)
+            .order('created_at', { ascending: true });
+          
+          console.log('Second query - verified=true:', { dataCount: data2?.length, error2 });
+          
+          if (!error2 && data2) {
+            data = data2;
+            error = null;
+          }
+        }
         
         if (error) {
           console.error('Error loading guests:', error);
-          return;
+          // Don't return - still update count to show 0
+          data = [];
         }
+        
+        if (!data) {
+          data = [];
+        }
+        
+        console.log(`Successfully loaded ${data.length} guests from database`);
         
         // Clear existing list
         guestList.innerHTML = '';
@@ -1162,6 +2980,11 @@
         // Add each guest to the list
         data.forEach(guest => {
           const li = document.createElement('li');
+          // Store guest data on list item for event delegation
+          li.dataset.guestId = guest.id;
+          li.dataset.guestName = guest.name;
+          li.dataset.guestCount = guest.guest_count || 1;
+          
           const guestText = guest.guest_count === 2 ? 
             `${guest.name} +1` : 
             guest.name;
@@ -1169,78 +2992,79 @@
           const nameSpan = document.createElement('span');
           nameSpan.textContent = guestText;
           
-          // Create edit button using addEventListener (original working pattern)
-          const editBtn = document.createElement('button');
-          editBtn.textContent = 'edit';
-          editBtn.classList.add('edit-button');
-          editBtn.classList.add('visible');
-          editBtn.style.marginLeft = '0.5rem';
-          
-          // Create options container
-          const editOptions = document.createElement('span');
-          editOptions.style.display = 'none';
-          editOptions.style.marginLeft = '0.5rem';
-          
-          // +1 button
-          const plusOneBtn = document.createElement('button');
-          plusOneBtn.textContent = '+1';
-          plusOneBtn.classList.add('edit-option-link');
-          plusOneBtn.addEventListener('click', async function() {
-            if (guest.guest_count === 2) {
-              alert('You already have a +1!');
-              return;
-            }
-            const { error } = await supabase
-              .from('guests')
-              .update({ guest_count: 2 })
-              .eq('id', guest.id);
-            if (!error) {
-              await loadGuestsFromDatabase();
-              alert('Added +1! Please pay additional $125 to @maxheald on Venmo.');
-            }
-          });
-          
-          // Separator
-          const separator = document.createElement('span');
-          separator.textContent = ' | ';
-          separator.style.color = '#fff';
-          separator.style.opacity = '0.6';
-          
-          // Delete button
-          const deleteBtn = document.createElement('button');
-          deleteBtn.textContent = 'delete';
-          deleteBtn.classList.add('edit-option-link');
-          deleteBtn.addEventListener('click', async function() {
-            if (confirm(`Remove ${guest.name} from the guest list?`)) {
-              const { error } = await supabase
-                .from('guests')
-                .delete()
-                .eq('id', guest.id);
-              if (!error) {
-                await loadGuestsFromDatabase();
-              }
-            }
-          });
-          
-          editOptions.appendChild(plusOneBtn);
-          editOptions.appendChild(separator);
-          editOptions.appendChild(deleteBtn);
-          
-          // Edit button click handler
-          editBtn.addEventListener('click', function() {
-            editBtn.style.display = 'none';
-            editOptions.style.display = 'inline';
-          });
+          // Create edit button only if this RSVP was created on this device
+          let editBtn = null;
+          if (isMyRSVP(guest.id)) {
+            editBtn = document.createElement('button');
+            editBtn.textContent = 'edit';
+            editBtn.classList.add('edit-button');
+            editBtn.classList.add('visible');
+            editBtn.style.marginLeft = '0.5rem';
+          }
           
           li.appendChild(nameSpan);
-          li.appendChild(editBtn);
-          li.appendChild(editOptions);
+          
+          // Only add edit button and options if this is the user's RSVP
+          if (editBtn) {
+            // Create options container
+            const editOptions = document.createElement('span');
+            editOptions.style.display = 'none';
+            editOptions.style.marginLeft = '0.5rem';
+            
+            // +1 button
+            const plusOneBtn = document.createElement('button');
+            plusOneBtn.textContent = '+1';
+            plusOneBtn.classList.add('edit-option-link');
+            plusOneBtn.dataset.guestId = guest.id;
+            plusOneBtn.dataset.guestName = guest.name;
+            plusOneBtn.dataset.guestCount = guest.guest_count;
+            plusOneBtn.dataset.listItem = 'true'; // Mark that this is from database list
+            // Event listener will be handled by delegation
+            
+            // Separator
+            const separator = document.createElement('span');
+            separator.textContent = ' | ';
+            separator.style.color = '#fff';
+            separator.style.opacity = '0.6';
+            
+            // Delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'delete';
+            deleteBtn.classList.add('edit-option-link');
+            deleteBtn.dataset.guestId = guest.id;
+            deleteBtn.dataset.guestName = guest.name;
+            // Event listener will be handled by delegation
+            
+            editOptions.appendChild(deleteBtn);
+            editOptions.appendChild(separator);
+            editOptions.appendChild(plusOneBtn);
+            
+            // Add class to editOptions for easier delegation
+            editOptions.classList.add('edit-options');
+            
+            // Edit button click handler (event delegation will also handle this)
+            editBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              editBtn.style.display = 'none';
+              editOptions.style.display = 'inline';
+            });
+            
+            li.appendChild(editBtn);
+            li.appendChild(editOptions);
+          }
           guestList.appendChild(li);
+          
+          // Render reactions for this guest
+          renderReactions(li, guest.id);
         });
         
         syncGuestLists();
+        attachEditButtonDelegation(); // Ensure delegation is set up
+        updateGuestCount(); // Update count display
       } catch (err) {
         console.error('Error loading guests:', err);
+        // Still update count even if there's an error (will show 0)
+        updateGuestCount();
       }
     }
 
@@ -1250,253 +3074,388 @@
       steps[`step${stepNum}`].style.display = 'block';
     }
 
-    // Step 1: Name input
-    nameBtn.addEventListener('click', () => {
-      const name = nameInput.value.trim();
-      if (name) {
-        rsvpData.name = name;
-        showStep(2);
-      }
-    });
-
-    // Step 2: Guest count selection
+    // Step 1: Name input and guest count selection (combined)
+    const venmoPaymentLink = document.getElementById('venmoPaymentLink');
+    
+    // Guest count buttons (on step 1)
     justMeBtn.addEventListener('click', () => {
       rsvpData.guestCount = 1;
       ticketPrice.textContent = '$125';
-      showStep(3);
+      if (venmoPaymentLink) {
+        venmoPaymentLink.href = 'https://account.venmo.com/payment-link?amount=125&note=for%20the%20gala!&recipients=maxheald&txn=pay';
+      }
+      // Update button styles
+      justMeBtn.classList.add('selected');
+      plusOneBtn.classList.remove('selected');
     });
 
     plusOneBtn.addEventListener('click', () => {
       rsvpData.guestCount = 2;
       ticketPrice.textContent = '$250';
+      if (venmoPaymentLink) {
+        venmoPaymentLink.href = 'https://account.venmo.com/payment-link?amount=250&note=for%20the%20gala!&recipients=maxheald&txn=pay';
+      }
+      // Update button styles
+      plusOneBtn.classList.add('selected');
+      justMeBtn.classList.remove('selected');
+    });
+
+    // Continue button on step 1 - goes directly to payment
+    nameBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      
+      if (!name) {
+        alert('Please enter your name');
+        return;
+      }
+      
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      if (!rsvpData.guestCount) {
+        alert('Please select just me or plus one');
+        return;
+      }
+      
+      // Save both name and email
+      rsvpData.name = name;
+      rsvpData.email = email;
+      
+      // Go directly to payment screen
       showStep(3);
     });
 
-    // Step 3: Phone number input
-    phoneBtn.addEventListener('click', async () => {
-      const phone = phoneInput.value.trim();
-      if (phone) {
-        rsvpData.phone = phone;
-        
-        // Generate demo code (will be replaced by Twilio later)
-        const demoCode = '0000';
-        
-        try {
-          // Save to Supabase
-          const { data, error } = await supabase
-            .from('guests')
-            .insert([{
-              name: rsvpData.name,
-              phone: phone,
-              guest_count: rsvpData.guestCount,
-              verification_code: demoCode,
-              verified: false
-            }])
-            .select();
-          
-          if (error) {
-            console.error('Supabase error:', error);
-            alert('Error saving RSVP. Please try again.');
-            return;
-          }
-          
-          // Store guest ID for later verification
-          rsvpData.guestId = data[0].id;
-          
-          console.log('Guest saved to Supabase with ID:', rsvpData.guestId);
-          console.log('Demo code: 0000 (will send via Twilio when approved)');
-          
-          showStep(4);
-        } catch (err) {
-          console.error('Error:', err);
-          alert('Error saving RSVP. Please try again.');
-        }
-      }
-    });
-
-    // Step 4: Verification code
-    verifyBtn.addEventListener('click', async () => {
-      const code = codeInput.value.trim();
-      
-      // For demo, accept "0000" or any 4-digit code
-      if (code === '0000' || code.length === 4) {
-        try {
-          // Mark as verified in Supabase
-          const { error } = await supabase
-            .from('guests')
-            .update({ verified: true })
-            .eq('id', rsvpData.guestId);
-          
-          if (error) {
-            console.error('Supabase error:', error);
-          }
-          
-          rsvpData.verified = true;
-          console.log('Guest verified in Supabase');
-          showStep(5);
-        } catch (err) {
-          console.error('Error:', err);
-          // Continue anyway for demo
-          rsvpData.verified = true;
-          showStep(5);
-        }
+    // Step 2: Email input (deprecated - keeping for backward compatibility)
+    emailBtn.addEventListener('click', () => {
+      const email = emailInput.value.trim() || (document.getElementById('emailInput2') ? document.getElementById('emailInput2').value.trim() : '');
+      if (email && email.includes('@')) {
+        rsvpData.email = email;
+        showStep(3); // Go to payment screen
       } else {
-        alert('Invalid code. For demo, use 0000');
+        alert('Please enter a valid email address');
       }
     });
 
-    // Resend code button
-    resendCode.addEventListener('click', () => {
-      console.log('Resending code to:', rsvpData.phone);
-      alert('Code resent! (Demo: use 0000)');
-    });
-
-    // Step 5: Payment confirmation
-    paidBtn.addEventListener('click', () => {
-      rsvpData.paid = true;
-      // In real implementation, this would trigger Twilio SMS with ticket
-      console.log('Sending ticket to:', rsvpData.phone);
-      showStep(6);
-    });
-
-    // Step 6: Confirmation -> Go to guest list
-    letsGoBtn.addEventListener('click', () => {
-      // Check if we're editing an existing entry to add +1
-      if (rsvpData.isEditingPlusOne && rsvpData.existingListItem) {
-        // Update existing list item with +1
-        const nameSpan = rsvpData.existingListItem.querySelector('span');
-        nameSpan.textContent = `${rsvpData.name} +1`;
-        nameSpan.classList.add('guest-name-animated');
-        
-        // Sync lists and show step 7
-        syncGuestLists();
-        setTimeout(() => {
-          syncGuestLists(); // Sync again after animation
-        }, 2000);
-        
-        // Reset editing state
-        rsvpData.isEditingPlusOne = false;
-        rsvpData.existingListItem = null;
-        
-        showStep(7);
-        return; // Exit early, don't create new entry
-      }
-      
-      // Normal flow: Add new guest to list with animation
-      const li = document.createElement('li');
-      const guestText = rsvpData.guestCount === 2 ? 
-        `${rsvpData.name} +1` : 
-        rsvpData.name;
-      
-      // Create name span
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = guestText;
-      nameSpan.classList.add('guest-name-animated');
-      
-      // Create edit button using addEventListener (original working pattern)
-      const editBtn = document.createElement('button');
-      editBtn.textContent = 'edit';
-      editBtn.classList.add('edit-button');
-      editBtn.style.opacity = '0';
-      editBtn.style.transition = 'opacity 0.5s ease';
-      editBtn.style.marginLeft = '0.5rem';
-      
-      // Create options container
-      const editOptions = document.createElement('span');
-      editOptions.style.display = 'none';
-      editOptions.style.marginLeft = '0.5rem';
-      
-      // +1 button
-      const plusOneBtn = document.createElement('button');
-      plusOneBtn.textContent = '+1';
-      plusOneBtn.classList.add('edit-option-link');
-      plusOneBtn.addEventListener('click', async function() {
-        if (guestText.includes('+1')) {
-          alert('You already have a +1!');
-          return;
+    // Step 3: Payment confirmation
+    paidBtn.addEventListener('click', async () => {
+      try {
+        // Check if Supabase is available
+        if (!supabase) {
+          console.error('Supabase not initialized');
+          // Still proceed with UI updates even if database fails
+          alert('Database connection unavailable. Your RSVP will be saved locally but may not appear in the guest list.');
         }
-        // Update in Supabase
-        const { error } = await supabase
-          .from('guests')
-          .update({ guest_count: 2 })
-          .eq('id', rsvpData.guestId);
-        if (!error) {
-          await loadGuestsFromDatabase();
-          alert('Added +1! Please pay additional $125 to @maxheald on Venmo.');
-        }
-      });
-      
-      // Separator
-      const separator = document.createElement('span');
-      separator.textContent = ' | ';
-      separator.style.color = '#fff';
-      separator.style.opacity = '0.6';
-      
-      // Delete button
-      const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'delete';
-      deleteBtn.classList.add('edit-option-link');
-      deleteBtn.addEventListener('click', async function() {
-        if (confirm(`Remove ${rsvpData.name} from the guest list?`)) {
-          const { error } = await supabase
-            .from('guests')
-            .delete()
-            .eq('id', rsvpData.guestId);
-          if (!error) {
-            await loadGuestsFromDatabase();
+        
+        if (rsvpData.isEditingPlusOne && rsvpData.existingListItem) {
+          // Updating existing entry to add +1
+          let updateSuccess = false;
+          if (supabase) {
+            try {
+              // Try with paid field first, fallback to verified if needed
+              let { error } = await supabase
+                .from('guests')
+                .update({ guest_count: 2, paid: true })
+                .eq('id', rsvpData.guestId);
+              
+              // If error, try with verified field (backward compatibility)
+              if (error) {
+                console.error('Supabase error (trying paid):', error);
+                const { error: error2 } = await supabase
+                  .from('guests')
+                  .update({ guest_count: 2, verified: true })
+                  .eq('id', rsvpData.guestId);
+                
+                if (error2) {
+                  console.error('Supabase error (trying verified):', error2);
+                  alert(`Error updating guest: ${error2.message || 'Please try again.'}`);
+                } else {
+                  updateSuccess = true;
+                }
+              } else {
+                updateSuccess = true;
+              }
+            } catch (err) {
+              console.error('Error updating +1:', err);
+              alert(`Error updating guest: ${err.message || 'Please try again.'}`);
+            }
           }
+          
+          if (updateSuccess) {
+            // Reload guests from database to ensure consistency
+            await loadGuestsFromDatabase();
+          } else {
+            // If database update failed, still update UI but show warning
+            const nameSpan = rsvpData.existingListItem.querySelector('span');
+            if (nameSpan) {
+              nameSpan.textContent = `${rsvpData.name} +1`;
+              nameSpan.classList.add('guest-name-animated');
+            }
+            rsvpData.existingListItem.dataset.guestCount = 2;
+            syncGuestLists();
+          }
+          
+          // Reset editing state
+          rsvpData.isEditingPlusOne = false;
+          rsvpData.existingListItem = null;
+          rsvpData.guestId = null;
+          
+          // Hide form container (fade away form elements)
+          const rsvpFormContainer = document.getElementById('rsvpFormContainer');
+          if (rsvpFormContainer) {
+            rsvpFormContainer.style.transition = 'opacity 0.5s ease';
+            rsvpFormContainer.style.opacity = '0';
+            setTimeout(() => {
+              rsvpFormContainer.style.display = 'none';
+            }, 500);
+          }
+          
+          // Change button back to RSVP
+          const thirdPageRSVPBtn = document.getElementById('thirdPageRSVP');
+          if (thirdPageRSVPBtn) {
+            thirdPageRSVPBtn.textContent = 'RSVP';
+          }
+          
+          // Clear inputs
+          nameInput.value = '';
+          emailInput.value = '';
+          
+          // Reset guest count selection
+          justMeBtn.classList.remove('selected');
+          plusOneBtn.classList.remove('selected');
+          rsvpData.guestCount = null;
+          rsvpData.name = '';
+          rsvpData.email = '';
+        } else {
+          // New RSVP: Save to Supabase
+          let data = null;
+          let error = null;
+          
+          if (supabase) {
+            // Try with email and paid fields first, fallback to phone/verified if needed
+            let insertData = {
+              name: rsvpData.name,
+              guest_count: rsvpData.guestCount
+            };
+            
+            // Try email field first
+            let result = await supabase
+              .from('guests')
+              .insert([{
+                ...insertData,
+                email: rsvpData.email,
+                paid: true
+              }])
+              .select();
+            
+            data = result.data;
+            error = result.error;
+            
+            // If error, try with phone field (for backward compatibility)
+            if (error) {
+              console.error('Supabase error (trying email/paid):', error);
+              const result2 = await supabase
+                .from('guests')
+                .insert([{
+                  ...insertData,
+                  phone: rsvpData.email, // Store email in phone field as fallback
+                  verified: true
+                }])
+                .select();
+              
+              if (result2.error) {
+                console.error('Supabase error (trying phone/verified):', result2.error);
+                // Continue with UI update even if database fails
+              } else {
+                data = result2.data;
+                error = null;
+              }
+            }
+          }
+          
+          // Store guest ID if we got data
+          if (data && data[0]) {
+            rsvpData.guestId = data[0].id;
+            // Mark this RSVP as created on this device
+            addMyRSVP(data[0].id);
+          }
+          
+          // Add new guest to list with animation
+          const li = document.createElement('li');
+          const guestText = rsvpData.guestCount === 2 ? 
+            `${rsvpData.name} +1` : 
+            rsvpData.name;
+          
+          // Create name span
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = guestText;
+          nameSpan.classList.add('guest-name-animated');
+          
+          // Create edit button
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'edit';
+          editBtn.classList.add('edit-button');
+          editBtn.style.opacity = '0';
+          editBtn.style.transition = 'opacity 0.5s ease';
+          editBtn.style.marginLeft = '0.5rem';
+          
+          // Create options container
+          const editOptions = document.createElement('span');
+          editOptions.style.display = 'none';
+          editOptions.style.marginLeft = '0.5rem';
+          
+          // Delete button
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = 'delete';
+          deleteBtn.classList.add('edit-option-link');
+          if (data && data[0]) {
+            deleteBtn.dataset.guestId = data[0].id;
+            deleteBtn.dataset.guestName = rsvpData.name;
+          }
+          // Event listener handled by delegation
+          
+          // Separator
+          const separator = document.createElement('span');
+          separator.textContent = ' | ';
+          separator.style.color = '#fff';
+          separator.style.opacity = '0.6';
+          
+          // +1 button
+          const plusOneBtn = document.createElement('button');
+          plusOneBtn.textContent = '+1';
+          plusOneBtn.classList.add('edit-option-link');
+          if (data && data[0]) {
+            plusOneBtn.dataset.guestId = data[0].id;
+            plusOneBtn.dataset.guestName = rsvpData.name;
+            plusOneBtn.dataset.guestCount = rsvpData.guestCount;
+          }
+          // Event listener handled by delegation
+          
+          editOptions.appendChild(deleteBtn);
+          editOptions.appendChild(separator);
+          editOptions.appendChild(plusOneBtn);
+          
+          // Add class to editOptions for easier delegation
+          editOptions.classList.add('edit-options');
+          
+          // Edit button click handler (event delegation will also handle this)
+          editBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            editBtn.style.display = 'none';
+            editOptions.style.display = 'inline';
+          });
+          
+          // Store guest data on list item FIRST (before appending children)
+          // This ensures dataset is always available for event delegation
+          if (data && data[0]) {
+            li.dataset.guestId = data[0].id;
+            li.dataset.guestName = rsvpData.name;
+            li.dataset.guestCount = rsvpData.guestCount;
+          } else {
+            // Even if database insert failed, set a temporary ID so buttons work
+            // This prevents the "Could not find guest ID" error
+            li.dataset.guestId = 'temp-' + Date.now();
+            li.dataset.guestName = rsvpData.name;
+            li.dataset.guestCount = rsvpData.guestCount;
+            console.warn('Guest added without database ID - using temporary ID');
+          }
+          
+          li.appendChild(nameSpan);
+          li.appendChild(editBtn);
+          li.appendChild(editOptions);
+          guestList.appendChild(li); // Add to bottom of list
+          
+          // Render reactions for new guest
+          if (data && data[0] && data[0].id) {
+            renderReactions(li, data[0].id);
+          } else if (rsvpData.guestId) {
+            renderReactions(li, rsvpData.guestId);
+          }
+          
+          // Sync guest list to step 1 and right side
+          syncGuestLists();
+          attachEditButtonDelegation(); // Ensure delegation is set up
+          
+          // Fade in edit button after 2 second animation
+          setTimeout(() => {
+            editBtn.style.opacity = '1';
+            syncGuestLists();
+          }, 2000);
+          
+          // Hide form container (fade away form elements)
+          const rsvpFormContainer = document.getElementById('rsvpFormContainer');
+          if (rsvpFormContainer) {
+            rsvpFormContainer.style.transition = 'opacity 0.5s ease';
+            rsvpFormContainer.style.opacity = '0';
+            setTimeout(() => {
+              rsvpFormContainer.style.display = 'none';
+              // Reset opacity and transition for next time form is opened
+              rsvpFormContainer.style.opacity = '1';
+              rsvpFormContainer.style.transition = '';
+            }, 500);
+          }
+          
+          // Change button back to RSVP
+          const thirdPageRSVPBtn = document.getElementById('thirdPageRSVP');
+          if (thirdPageRSVPBtn) {
+            thirdPageRSVPBtn.textContent = 'RSVP';
+          }
+          
+          // Clear inputs for next RSVP
+          nameInput.value = '';
+          emailInput.value = '';
+          
+          // Reset guest count selection
+          justMeBtn.classList.remove('selected');
+          plusOneBtn.classList.remove('selected');
+          rsvpData.guestCount = null;
+          rsvpData.name = '';
+          rsvpData.email = '';
+          rsvpData.guestId = null;
+          rsvpData.isEditingPlusOne = false;
+          rsvpData.existingListItem = null;
         }
-      });
-      
-      editOptions.appendChild(plusOneBtn);
-      editOptions.appendChild(separator);
-      editOptions.appendChild(deleteBtn);
-      
-      // Edit button click handler
-      editBtn.addEventListener('click', function() {
-        editBtn.style.display = 'none';
-        editOptions.style.display = 'inline';
-      });
-      
-      li.appendChild(nameSpan);
-      li.appendChild(editBtn);
-      li.appendChild(editOptions);
-      guestList.appendChild(li);
-      
-      // Sync guest list to step 1
-      syncGuestLists();
-      
-      // Fade in edit button after 2 second animation
-      setTimeout(() => {
-        editBtn.style.opacity = '1';
-        syncGuestLists();
-      }, 2000);
-      
-      // Go back to step 1 so user can add another guest
-      showStep(1);
-      
-      // Clear inputs for next RSVP
-      nameInput.value = '';
-      phoneInput.value = '';
-      codeInput.value = '';
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Error processing payment. Please try again.');
+      }
     });
 
-    // Reset RSVP flow when modal is opened
-    navRSVP.addEventListener('click', async () => {
-      // Load guests from database
-      await loadGuestsFromDatabase();
-      
-      // Always show step 1 (form + guest list)
-      showStep(1);
-      // Clear inputs for new RSVP
-      nameInput.value = '';
-      phoneInput.value = '';
-      codeInput.value = '';
-    });
 
-    // Load guests when page first loads
-    loadGuestsFromDatabase();
+    // Reset RSVP flow when modal is opened (if navRSVP exists)
+    const navRSVP = document.getElementById('navRSVP');
+    if (navRSVP) {
+      navRSVP.addEventListener('click', async () => {
+        // Load guests from database
+        await loadGuestsFromDatabase();
+        
+        // Always show step 1 (form + guest list)
+        showStep(1);
+        // Clear inputs for new RSVP
+        nameInput.value = '';
+        emailInput.value = '';
+      });
+    }
+
+
+    // Attach event delegation for edit buttons (works even after modal reopens)
+    attachEditButtonDelegation();
+    
+    // Note: Guests are loaded by waitForSupabase() after Supabase initializes
+    // Don't call loadGuestsFromDatabase() here as it may run before Supabase is ready
+    
+    // Debug: Verify RSVP button setup
+    console.log('RSVP Setup Check:', {
+      buttonExists: !!document.getElementById('thirdPageRSVP'),
+      formContainerExists: !!document.getElementById('rsvpFormContainer'),
+      buttonElement: document.getElementById('thirdPageRSVP'),
+      buttonVisible: document.getElementById('thirdPageRSVP')?.classList.contains('visible'),
+      buttonOpacity: window.getComputedStyle(document.getElementById('thirdPageRSVP') || document.body).opacity
+    });
   </script>
+
 
 </body>
 </html>
